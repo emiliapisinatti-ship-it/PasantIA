@@ -435,6 +435,10 @@ const SEED_CANDS = [
 const DEMO_USERS = [
   { id:'demo-st-1', role:'student', name:'Lucía Fernández', career:'Lic. en Sistemas de Información', year:'4to año', skills:['React','JavaScript','Python','SQL','Git'], university:'UCH', bio:'Apasionada por el desarrollo web y la IA.', email:'lucia@uch.edu.ar', password:'demo2026' },
   { id:'demo-emp-1', role:'empresa', name:'Mercado Libre', contact:'Carlos Rodríguez', sector:'Tecnología', size:'Grande (500+ empleados)', location:'CABA', email:'rrhh@mercadolibre.com', password:'demo2026' },
+  { id:'demo-emp-2', role:'empresa', name:'Banco Nación', contact:'Ana García', sector:'Finanzas', size:'Grande (500+ empleados)', location:'CABA', email:'rrhh@banconacion.com', password:'demo2026' },
+  { id:'demo-emp-3', role:'empresa', name:'Globant', contact:'Diego Martínez', sector:'Tecnología', size:'Grande (500+ empleados)', location:'CABA', email:'rrhh@globant.com', password:'demo2026' },
+  { id:'demo-emp-4', role:'empresa', name:'Ualá', contact:'Sofía Torres', sector:'Fintech', size:'Mediana (100-500 empleados)', location:'CABA', email:'rrhh@uala.com', password:'demo2026' },
+  { id:'demo-emp-5', role:'empresa', name:'Accenture', contact:'Martín Pérez', sector:'Consultoría', size:'Grande (500+ empleados)', location:'CABA', email:'rrhh@accenture.com', password:'demo2026' },
 ];
 
 const DEMO_MATCHES = [
@@ -442,7 +446,7 @@ const DEMO_MATCHES = [
 ];
 
 function initDB() {
-  if (DB.get('seedVersion') !== '5') {
+  if (DB.get('seedVersion') !== '6') {
     DB.set('jobs', SEED_JOBS);
     DB.set('candidates', SEED_CANDS);
     DB.set('users', [...DEMO_USERS]);
@@ -453,7 +457,7 @@ function initDB() {
       { id:'n-demo-1', userId:'demo-st-1', text:'¡Tenés un nuevo match con Mercado Libre!', icon:'heart', time:'Hace 2 días', read:false }
     ]);
     DB.set('currentUser', null);
-    DB.set('seedVersion', '5');
+    DB.set('seedVersion', '6');
   }
 }
 
