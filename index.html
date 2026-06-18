@@ -247,6 +247,7 @@ textarea.form-input{resize:vertical;min-height:90px}
 
 /* ── ANIMATIONS ── */
 @keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
 @keyframes swipe-left{to{transform:translateX(-150%) rotate(-30deg);opacity:0}}
 @keyframes swipe-right{to{transform:translateX(150%) rotate(30deg);opacity:0}}
 @keyframes card-enter{from{transform:scale(0.92) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
@@ -319,6 +320,12 @@ textarea.form-input{resize:vertical;min-height:90px}
 </nav>
 
 <div id="app">
+
+<!-- ══ LOADING ══ -->
+<div id="screen-loading" style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:16px">
+  <div style="width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--purple-light);border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="color:var(--muted);font-size:0.9rem">Cargando PasantIA...</div>
+</div>
 
 <!-- ══ LANDING ══ -->
 <div id="screen-landing" class="fade-up" style="display:none">
@@ -403,14 +410,35 @@ textarea.form-input{resize:vertical;min-height:90px}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // ════════════════════════════════════════
-//  STORAGE
+//  STORAGE (Supabase + localStorage para currentUser)
 // ════════════════════════════════════════
+const _SUPA_URL = 'https://lvecohlgtghmpexnrpmq.supabase.co';
+const _SUPA_KEY = 'sb_publishable_-DQvS11F80HRyPP4jsc1pw_p6NYe3-v';
+const _sb = supabase.createClient(_SUPA_URL, _SUPA_KEY);
+const _LOCAL_KEYS = new Set(['currentUser']);
+
 const DB = {
-  get: k => { try { return JSON.parse(localStorage.getItem('pasantia_'+k)) } catch { return null } },
-  set: (k,v) => localStorage.setItem('pasantia_'+k, JSON.stringify(v)),
-  push: (k,v) => { const a = DB.get(k)||[]; a.push(v); DB.set(k,a); return v },
+  _cache: {},
+  async load() {
+    const { data } = await _sb.from('store').select('*');
+    if (data) data.forEach(r => this._cache[r.key] = r.value);
+    for (const k of _LOCAL_KEYS) {
+      try { this._cache[k] = JSON.parse(localStorage.getItem('pasantia_'+k)); } catch {}
+    }
+  },
+  get(k) { return this._cache[k] ?? null; },
+  set(k, v) {
+    this._cache[k] = v;
+    if (_LOCAL_KEYS.has(k)) {
+      localStorage.setItem('pasantia_'+k, JSON.stringify(v));
+    } else {
+      _sb.from('store').upsert({ key: k, value: v }).then(() => {});
+    }
+  },
+  push(k, v) { const a = this.get(k)||[]; a.push(v); this.set(k,a); return v; },
 };
 
 // ════════════════════════════════════════
@@ -446,7 +474,8 @@ const DEMO_MATCHES = [
 ];
 
 function initDB() {
-  if (DB.get('seedVersion') !== '6') {
+  // Solo sembrar si Supabase está vacío (primera vez)
+  if (!DB.get('jobs') || DB.get('jobs').length === 0) {
     DB.set('jobs', SEED_JOBS);
     DB.set('candidates', SEED_CANDS);
     DB.set('users', [...DEMO_USERS]);
@@ -456,8 +485,6 @@ function initDB() {
     DB.set('notifications', [
       { id:'n-demo-1', userId:'demo-st-1', text:'¡Tenés un nuevo match con Mercado Libre!', icon:'heart', time:'Hace 2 días', read:false }
     ]);
-    DB.set('currentUser', null);
-    DB.set('seedVersion', '6');
   }
 }
 
@@ -2309,8 +2336,10 @@ function searchCert() {
 // ════════════════════════════════════════
 //  INIT
 // ════════════════════════════════════════
-initDB();
-(function() {
+(async function() {
+  showScreen('loading');
+  await DB.load();
+  initDB();
   const saved = DB.get('currentUser');
   if (saved) { currentUser = saved; renderDashboard(); }
   else { showScreen('landing'); }
