@@ -2107,6 +2107,60 @@ function avatarHTML(user, size) {
   return `<div class="avatar avatar-${size}" style="background:${avatarBg(user.name)};color:white;display:flex;align-items:center;justify-content:center">${(user.name||'?').charAt(0)}</div>`;
 }
 
+function showStatDetail(type) {
+  const students = (DB.get('users')||[]).filter(u=>u.role==='student');
+  const companies = (DB.get('users')||[]).filter(u=>u.role==='empresa');
+  const matches = DB.get('matches')||[];
+  const certs = DB.get('certificates')||[];
+  const jobs = (DB.get('jobs')||[]).filter(j=>j.status==='approved');
+  const titles = { students:'Alumnos registrados', companies:'Empresas activas', matches:'Matches totales', certs:'Certificados emitidos', jobs:'Pasantías activas' };
+  let rows = '';
+  if (type === 'students') {
+    rows = students.length ? students.map(u=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        ${avatarHTML(u,'sm')}
+        <div><div style="font-weight:600">${u.name}</div><div style="font-size:0.78rem;color:var(--muted)">${u.career||''} · ${u.university||''}</div></div>
+      </div>`).join('') : '<div style="color:var(--muted)">Sin alumnos registrados</div>';
+  } else if (type === 'companies') {
+    rows = companies.length ? companies.map(u=>`
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)">
+        ${avatarHTML(u,'sm')}
+        <div><div style="font-weight:600">${u.name}</div><div style="font-size:0.78rem;color:var(--muted)">${u.sector||''} · ${u.location||''}</div></div>
+      </div>`).join('') : '<div style="color:var(--muted)">Sin empresas registradas</div>';
+  } else if (type === 'matches') {
+    rows = matches.length ? matches.map(m=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-weight:600">${m.studentName} → ${m.role}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${m.company} · Etapa ${m.step} · ${m.createdAt||'Reciente'}</div>
+      </div>`).join('') : '<div style="color:var(--muted)">Sin matches todavía</div>';
+  } else if (type === 'certs') {
+    rows = certs.length ? certs.map(c=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-weight:600">${c.studentName} · ${c.role}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${c.company} · ${c.issuedAt}</div>
+        <div style="font-size:0.72rem;color:var(--muted);margin-top:4px;word-break:break-all">${c.txHash}</div>
+      </div>`).join('') : '<div style="color:var(--muted)">Sin certificados emitidos</div>';
+  } else if (type === 'jobs') {
+    rows = jobs.length ? jobs.map(j=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border)">
+        <div style="font-weight:600">${j.role}</div>
+        <div style="font-size:0.78rem;color:var(--muted)">${j.company} · ${j.modality} · ${j.salary}/mes</div>
+      </div>`).join('') : '<div style="color:var(--muted)">Sin pasantías activas</div>';
+  }
+  const el = document.getElementById('stat-detail');
+  if (el) {
+    el.innerHTML = `<div class="card" style="margin-top:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="font-weight:700">${titles[type]}</div>
+        <button class="btn btn-sm" onclick="document.getElementById('stat-detail').innerHTML=''">Cerrar</button>
+      </div>
+      ${rows}
+    </div>`;
+    icons();
+    el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+}
+
 function renderStats() {
   const students = (DB.get('users')||[]).filter(u=>u.role==='student');
   const companies = (DB.get('users')||[]).filter(u=>u.role==='empresa');
@@ -2119,43 +2173,33 @@ function renderStats() {
       <p>Resumen de la actividad en la plataforma</p>
     </div>
     <div class="stats-grid">
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer" onclick="showStatDetail('students')">
         <div class="stat-icon" style="background:var(--purple-dim)"><i data-lucide="users" style="color:var(--purple-light)"></i></div>
         <div class="stat-num">${students.length}</div>
         <div class="stat-label">Alumnos registrados</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer" onclick="showStatDetail('companies')">
         <div class="stat-icon" style="background:rgba(14,165,233,0.12)"><i data-lucide="building-2" style="color:#38bdf8"></i></div>
         <div class="stat-num">${companies.length}</div>
         <div class="stat-label">Empresas activas</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer" onclick="showStatDetail('matches')">
         <div class="stat-icon" style="background:var(--green-dim)"><i data-lucide="heart" style="color:var(--green)"></i></div>
         <div class="stat-num">${matches.length}</div>
         <div class="stat-label">Matches totales</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer" onclick="showStatDetail('certs')">
         <div class="stat-icon" style="background:var(--yellow-dim)"><i data-lucide="award" style="color:var(--yellow)"></i></div>
         <div class="stat-num">${certs.length}</div>
         <div class="stat-label">Certificados emitidos</div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer" onclick="showStatDetail('jobs')">
         <div class="stat-icon" style="background:var(--purple-dim)"><i data-lucide="briefcase" style="color:var(--purple-light)"></i></div>
         <div class="stat-num">${jobs.length}</div>
         <div class="stat-label">Pasantías activas</div>
       </div>
     </div>
-    <div class="card" style="max-width:500px;margin-top:8px">
-      <div style="font-weight:700;margin-bottom:14px">Actividad reciente</div>
-      ${matches.slice(-3).reverse().map(m=>`
-        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-          <div style="width:36px;height:36px;background:var(--green-dim);border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="heart" style="width:16px;height:16px;color:var(--green)"></i></div>
-          <div>
-            <div style="font-size:0.87rem;font-weight:600">Match: ${m.studentName} → ${m.company}</div>
-            <div style="font-size:0.75rem;color:var(--muted)">${m.createdAt||'Reciente'}</div>
-          </div>
-        </div>`).join('') || '<div style="color:var(--muted);font-size:0.85rem;padding:12px 0">Sin actividad reciente</div>'}
-    </div>`;
+    <div id="stat-detail" style="margin-top:16px"></div>`;
 }
 
 // ════════════════════════════════════════
