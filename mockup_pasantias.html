@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PasantIA — Mockup del Sistema</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F5F5F5;color:#111;font-size:14px;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 12px}
+.wrapper{width:100%;max-width:720px}
+.top-label{font-size:12px;color:#888;margin-bottom:8px;text-align:center;letter-spacing:0.3px}
+.shell{border:1px solid #E0E0E0;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,0.07)}
+.global-tabs{display:flex;border-bottom:1px solid #E8E8E8;background:#FAFAFA;padding:0 12px}
+.vt{font-size:13px;padding:10px 14px;cursor:pointer;border:none;background:none;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;font-family:inherit;display:flex;align-items:center;gap:5px}
+.vt.active{color:#111;border-bottom-color:#111;font-weight:500}
+.vt i{font-size:14px}
+.view{display:none}
+.view.active{display:block}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;border-bottom:1px solid #F0F0F0;background:#fff}
+.logo{display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px;color:#111}
+.logo-box{width:28px;height:28px;border-radius:7px;background:#185FA5;display:flex;align-items:center;justify-content:center}
+.logo-box i{color:#fff;font-size:15px}
+.role-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.rb-a{background:#E6F1FB;color:#0C447C}
+.rb-e{background:#E1F5EE;color:#0F6E56}
+.rb-f{background:#FFF3E0;color:#7C4006}
+.rb-v{background:#EDE7F6;color:#4527A0}
+.nav-right{display:flex;align-items:center;gap:8px}
+.avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.av-a{background:#E6F1FB;color:#185FA5}
+.av-e{background:#E1F5EE;color:#0F6E56}
+.av-f{background:#FFF3E0;color:#E65100}
+.main{padding:18px;background:#fff}
+.ph{font-size:17px;font-weight:600;margin-bottom:3px}
+.ps{font-size:12px;color:#888;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+.stats3{grid-template-columns:repeat(3,1fr)}
+.stat{background:#F7F7F7;border-radius:9px;padding:11px 13px}
+.stat-n{font-size:21px;font-weight:600;line-height:1.1}
+.stat-l{font-size:11px;color:#888;margin-top:3px}
+.sec{font-size:12px;font-weight:600;color:#888;margin-bottom:8px;display:flex;align-items:center;gap:5px;text-transform:uppercase;letter-spacing:0.4px}
+.card{background:#fff;border:1px solid #EBEBEB;border-radius:12px;padding:14px;margin-bottom:9px}
+.card.featured{border:2px solid #378ADD}
+.card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.clogo{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.ctitle{font-size:13px;font-weight:600;margin-bottom:3px}
+.cmeta{font-size:11px;color:#888}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0 0}
+.tag{font-size:11px;padding:3px 9px;border-radius:7px;background:#F3F3F3;color:#555}
+.cf{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #F0F0F0;padding-top:9px;margin-top:9px}
+.btn{font-size:12px;padding:6px 13px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn-pri{background:#E6F1FB;border:1px solid #378ADD;color:#0C447C}
+.btn-suc{background:#EAF3DE;border:1px solid #639922;color:#27500A}
+.btn-warn{background:#FFF8E1;border:1px solid #F9A825;color:#6D4C00}
+.btn-dan{background:#FEEBEE;border:1px solid #EF5350;color:#7B1818}
+.btn-neu{background:#F5F5F5;border:1px solid #DDD;color:#333}
+.status{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap}
+.s-pend{background:#FFF8E1;color:#6D4C00}
+.s-act{background:#EAF3DE;color:#27500A}
+.s-rev{background:#E6F1FB;color:#0C447C}
+.s-fin{background:#EDE7F6;color:#4527A0}
+.s-rej{background:#FEEBEE;color:#7B1818}
+.divider{height:1px;background:#F0F0F0;margin:11px 0}
+.postcard{display:flex;align-items:center;gap:10px;padding:9px;border:1px solid #EBEBEB;border-radius:9px;margin-bottom:6px}
+.postcard:last-child{margin-bottom:0}
+.pc-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;background:#E6F1FB;color:#185FA5}
+.pc-right{margin-left:auto;display:flex;gap:6px}
+.banner{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;margin-bottom:14px;border:1px solid #C0DD97;background:#EAF3DE}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;font-size:11px;font-weight:600;color:#888;padding:7px 9px;border-bottom:1px solid #EBEBEB;background:#FAFAFA;text-transform:uppercase;letter-spacing:0.3px}
+.tbl td{padding:9px;border-bottom:1px solid #F5F5F5;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.confirm-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.check-box{width:20px;height:20px;border-radius:5px;border:1px solid #DDD;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.check-done{background:#EAF3DE;border-color:#639922}
+.check-done i{color:#27500A;font-size:13px}
+.check-pend{background:#F7F7F7}
+.verify-hero{text-align:center;padding:24px 16px 16px}
+.verify-hero h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.verify-hero p{font-size:13px;color:#888}
+.verify-input-row{display:flex;gap:8px;margin-bottom:20px}
+.verify-input-row input{flex:1;padding:9px 13px;border:1px solid #DDD;border-radius:9px;font-size:13px;font-family:inherit;background:#fff;color:#111}
+.cert-card{border:1px solid #C0DD97;border-radius:13px;background:#EAF3DE;padding:16px;margin-bottom:12px}
+.cert-header{display:flex;align-items:center;gap:10px;margin-bottom:13px}
+.cert-icon-big{width:44px;height:44px;border-radius:10px;background:#27500A;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cert-icon-big i{color:#EAF3DE;font-size:22px}
+.cert-verified{font-size:13px;font-weight:600;color:#173404}
+.cert-hash{font-size:10px;color:#3B6D11;font-family:monospace;word-break:break-all;margin-top:3px}
+.cert-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cf-item{background:#fff;border-radius:8px;padding:9px 11px;border:1px solid #C0DD97}
+.cf-label{font-size:10px;color:#888;margin-bottom:2px;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.cf-val{font-size:13px;font-weight:500;color:#111}
+.chain-row{display:flex;align-items:center;gap:6px;font-size:11px;color:#3B6D11;margin-top:11px}
+.chain-dot{width:8px;height:8px;border-radius:50%;background:#639922;flex-shrink:0}
+.info-box{font-size:12px;color:#666;background:#F7F7F7;padding:9px 12px;border-radius:9px;display:flex;align-items:center;gap:7px}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+  <div class="top-label">PasantIA — Mockup interactivo · Proyecto Teoría de la Computación 2026</div>
+  <div class="shell">
+
+    <div class="global-tabs">
+      <button class="vt active" onclick="sw('alumno',this)"><i class="ti ti-user"></i>Alumno</button>
+      <button class="vt" onclick="sw('empresa',this)"><i class="ti ti-building"></i>Empresa</button>
+      <button class="vt" onclick="sw('facultad',this)"><i class="ti ti-school"></i>Facultad</button>
+      <button class="vt" onclick="sw('verify',this)"><i class="ti ti-qrcode"></i>Verificador público</button>
+    </div>
+
+    <!-- ALUMNO -->
+    <div id="v-alumno" class="view active">
+      <div class="nav">
+        <div class="logo"><div class="logo-box"><i class="ti ti-briefcase"></i></div>PasantIA</div>
+        <div class="nav-right"><span class="role-badge rb-a">Alumno · 4to año</span><div class="avatar av-a">LG</div></div>
+      </div>
+      <div class="main">
+        <div class="banner">
+          <i class="ti ti-certificate" style="font-size:20px;color:#27500A;flex-shrink:0"></i>
+          <div style="flex:1"><p style="font-size:12px;font-weight:600;color:#173404">1 certificado blockchain emitido</p><p style="font-size:11px;color:#3B6D11">TechMendoza · Jun 2026 · Verificable on-chain</p></div>
+          <button class="btn btn-suc" style="font-size:11px">Ver QR</button>
+        </div>
+        <div class="stats">
+          <div class="stat"><div class="stat-n">24</div><div class="stat-l">Disponibles</div></div>
+          <div class="stat"><div class="stat-n">3</div><div class="stat-l">Postulaciones</div></div>
+          <div class="stat"><div class="stat-n">12</div><div class="stat-l">Empresas</div></div>
+          <div class="stat"><div class="stat-n">1</div><div class="stat-l">Certificados</div></div>
+        </div>
+        <div class="sec"><i class="ti ti-flame" style="color:#D85A30"></i>Pasantías disponibles</div>
+        <div class="card featured">
+          <div class="card-row">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <div class="clogo" style="background:#E6F1FB;color:#0C447C">TM</div>
+              <div><div class="ctitle">Desarrollador Backend Node.js</div><div class="cmeta">TechMendoza · Mendoza capital · 3 meses · $80.000/mes</div></div>
+            </div>
+            <span class="status s-act">Urgente</span>
+          </div>
+          <div class="tags"><span class="tag">Node.js</span><span class="tag">PostgreSQL</span><span class="tag">REST API</span></div>
+          <div class="cf"><span class="cmeta"><i class="ti ti-users" style="font-size:12px"></i> 8 postulantes</span><button class="btn btn-pri">Postularme</button></div>
+        </div>
+        <div class="card">
+          <div class="card-row">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <div class="clogo" style="background:#E1F5EE;color:#0F6E56">AD</div>
+              <div><div class="ctitle">Analista de datos agrícolas</div><div class="cmeta">AgriData SRL · Luján de Cuyo · 4 meses · $70.000/mes</div></div>
+            </div>
+            <span class="status s-rev">Nuevo</span>
+          </div>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Pandas</span><span class="tag">Tableau</span></div>
+          <div class="cf"><span class="cmeta"><i class="ti ti-users" style="font-size:12px"></i> 3 postulantes</span><button class="btn btn-pri">Postularme</button></div>
+        </div>
+        <div class="card">
+          <div class="card-row">
+            <div style="display:flex;gap:9px;align-items:flex-start">
+              <div class="clogo" style="background:#FFF3E0;color:#E65100">NX</div>
+              <div><div class="ctitle">Frontend React + UX</div><div class="cmeta">Nexo Digital · Godoy Cruz · 6 meses · $90.000/mes</div></div>
+            </div>
+          </div>
+          <div class="tags"><span class="tag">React</span><span class="tag">Figma</span><span class="tag">CSS</span></div>
+          <div class="cf"><span class="cmeta"><i class="ti ti-users" style="font-size:12px"></i> 14 postulantes</span><button class="btn btn-pri">Postularme</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPRESA -->
+    <div id="v-empresa" class="view">
+      <div class="nav">
+        <div class="logo"><div class="logo-box"><i class="ti ti-briefcase"></i></div>PasantIA</div>
+        <div class="nav-right"><span class="role-badge rb-e">Empresa</span><div class="avatar av-e">TM</div></div>
+      </div>
+      <div class="main">
+        <div class="ph">Panel empresa</div>
+        <div class="ps">TechMendoza · Gestioná tus pasantías y postulaciones</div>
+        <div class="stats stats3">
+          <div class="stat"><div class="stat-n">2</div><div class="stat-l">Pasantías activas</div></div>
+          <div class="stat"><div class="stat-n">21</div><div class="stat-l">Postulaciones totales</div></div>
+          <div class="stat"><div class="stat-n">1</div><div class="stat-l">Por confirmar</div></div>
+        </div>
+        <div class="sec"><i class="ti ti-writing"></i>Mis pasantías publicadas</div>
+        <div class="card">
+          <div class="card-row">
+            <div><div class="ctitle">Desarrollador Backend Node.js</div><div class="cmeta">Publicada hace 5 días · 3 meses · $80.000/mes</div></div>
+            <span class="status s-act">Activa</span>
+          </div>
+          <div class="divider"></div>
+          <div class="sec" style="margin-bottom:6px"><i class="ti ti-users"></i>Postulaciones recibidas (3)</div>
+          <div class="postcard">
+            <div class="pc-av">LG</div>
+            <div><div style="font-size:13px;font-weight:600">Lucas García</div><div style="font-size:11px;color:#888">Legajo 12043 · Prom. 8.2</div></div>
+            <div class="pc-right"><button class="btn btn-suc" style="font-size:11px">Seleccionar</button><button class="btn btn-neu" style="font-size:11px">Ver CV</button></div>
+          </div>
+          <div class="postcard">
+            <div class="pc-av" style="background:#E1F5EE;color:#0F6E56">MR</div>
+            <div><div style="font-size:13px;font-weight:600">María Ruiz</div><div style="font-size:11px;color:#888">Legajo 11988 · Prom. 7.9</div></div>
+            <div class="pc-right"><button class="btn btn-suc" style="font-size:11px">Seleccionar</button><button class="btn btn-neu" style="font-size:11px">Ver CV</button></div>
+          </div>
+          <div class="postcard">
+            <div class="pc-av" style="background:#FFF3E0;color:#E65100">JP</div>
+            <div><div style="font-size:13px;font-weight:600">Julián Pérez</div><div style="font-size:11px;color:#888">Legajo 12210 · Prom. 7.5</div></div>
+            <div class="pc-right"><button class="btn btn-suc" style="font-size:11px">Seleccionar</button><button class="btn btn-neu" style="font-size:11px">Ver CV</button></div>
+          </div>
+          <div class="cf" style="margin-top:10px"><span></span><button class="btn btn-pri">+ Publicar nueva pasantía</button></div>
+        </div>
+        <div class="card" style="border-left:3px solid #EF5350;border-radius:0 12px 12px 0">
+          <div class="card-row">
+            <div><div class="ctitle">Analista QA — Python</div><div class="cmeta">Finalización pendiente · Ana Gómez</div></div>
+            <span class="status s-fin">Pendiente</span>
+          </div>
+          <div class="divider"></div>
+          <div class="confirm-row">
+            <div class="check-box check-done"><i class="ti ti-check"></i></div>
+            <span style="font-size:12px">Confirmación empresa <span style="color:#888">(vos)</span></span>
+            <span class="status s-act" style="margin-left:auto">Confirmado</span>
+          </div>
+          <div class="confirm-row" style="margin-bottom:11px">
+            <div class="check-box check-pend"></div>
+            <span style="font-size:12px;color:#888">Confirmación facultad</span>
+            <span class="status s-pend" style="margin-left:auto">Esperando...</span>
+          </div>
+          <div class="info-box"><i class="ti ti-info-circle" style="font-size:15px;color:#185FA5;flex-shrink:0"></i>Cuando la facultad confirme, el certificado blockchain se emitirá automáticamente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FACULTAD -->
+    <div id="v-facultad" class="view">
+      <div class="nav">
+        <div class="logo"><div class="logo-box"><i class="ti ti-briefcase"></i></div>PasantIA</div>
+        <div class="nav-right"><span class="role-badge rb-f">Facultad · Admin</span><div class="avatar av-f">FC</div></div>
+      </div>
+      <div class="main">
+        <div class="ph">Panel administrativo</div>
+        <div class="ps">Facultad de Ingeniería · Gestión de pasantías</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-n" style="color:#D32F2F">4</div><div class="stat-l">Para aprobar</div></div>
+          <div class="stat"><div class="stat-n">11</div><div class="stat-l">Activas</div></div>
+          <div class="stat"><div class="stat-n">2</div><div class="stat-l">Por confirmar</div></div>
+          <div class="stat"><div class="stat-n">28</div><div class="stat-l">Certificados emitidos</div></div>
+        </div>
+        <div class="sec"><i class="ti ti-clock" style="color:#D85A30"></i>Pendientes de aprobación (4)</div>
+        <table class="tbl" style="margin-bottom:14px">
+          <thead><tr><th>Empresa</th><th>Rol</th><th>Duración</th><th>Acciones</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:7px"><div class="clogo" style="width:26px;height:26px;border-radius:6px;font-size:10px;background:#E6F1FB;color:#0C447C">TM</div>TechMendoza</div></td>
+              <td>Backend Node.js</td><td>3 meses</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-suc" style="font-size:11px">Aprobar</button><button class="btn btn-dan" style="font-size:11px">Rechazar</button></div></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:7px"><div class="clogo" style="width:26px;height:26px;border-radius:6px;font-size:10px;background:#E1F5EE;color:#0F6E56">AD</div>AgriData</div></td>
+              <td>Analista de datos</td><td>4 meses</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-suc" style="font-size:11px">Aprobar</button><button class="btn btn-dan" style="font-size:11px">Rechazar</button></div></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:7px"><div class="clogo" style="width:26px;height:26px;border-radius:6px;font-size:10px;background:#FFF3E0;color:#E65100">NX</div>Nexo Digital</div></td>
+              <td>Frontend React</td><td>6 meses</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-suc" style="font-size:11px">Aprobar</button><button class="btn btn-dan" style="font-size:11px">Rechazar</button></div></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:7px"><div class="clogo" style="width:26px;height:26px;border-radius:6px;font-size:10px;background:#EDE7F6;color:#4527A0">CF</div>CloudFirst</div></td>
+              <td>DevOps Jr.</td><td>5 meses</td>
+              <td><div style="display:flex;gap:5px"><button class="btn btn-suc" style="font-size:11px">Aprobar</button><button class="btn btn-dan" style="font-size:11px">Rechazar</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="sec"><i class="ti ti-certificate" style="color:#639922"></i>Confirmación de finalización pendiente (2)</div>
+        <div class="card">
+          <div class="card-row">
+            <div><div class="ctitle">Ana Gómez — Analista QA en TechMendoza</div><div class="cmeta">Tutor: Prof. Sánchez · Finalizó: 01/06/2026</div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="confirm-row">
+            <div class="check-box check-done"><i class="ti ti-check"></i></div>
+            <span style="font-size:12px">TechMendoza confirmó la finalización</span>
+          </div>
+          <div class="confirm-row" style="margin-bottom:11px">
+            <div class="check-box check-pend"></div>
+            <span style="font-size:12px;color:#888">Facultad aún no confirmó</span>
+          </div>
+          <div class="cf">
+            <span class="cmeta"><i class="ti ti-shield" style="font-size:12px"></i> Al confirmar se emite el certificado blockchain</span>
+            <button class="btn btn-suc">Confirmar y emitir certificado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERIFICADOR -->
+    <div id="v-verify" class="view">
+      <div class="nav">
+        <div class="logo"><div class="logo-box"><i class="ti ti-briefcase"></i></div>PasantIA</div>
+        <div class="nav-right"><span class="role-badge rb-v">Verificador público</span></div>
+      </div>
+      <div class="main">
+        <div class="verify-hero">
+          <div style="width:54px;height:54px;border-radius:13px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+            <i class="ti ti-shield-check" style="font-size:28px;color:#27500A"></i>
+          </div>
+          <h2>Verificar certificado</h2>
+          <p>Pegá el hash del certificado o escaneá el QR para comprobar su autenticidad</p>
+        </div>
+        <div class="verify-input-row">
+          <input type="text" value="0x3f9a...c7d2" placeholder="Hash del certificado o ID"/>
+          <button class="btn btn-pri" style="padding:9px 16px;white-space:nowrap"><i class="ti ti-search" style="font-size:13px;margin-right:4px"></i>Verificar</button>
+        </div>
+        <div class="cert-card">
+          <div class="cert-header">
+            <div class="cert-icon-big"><i class="ti ti-certificate"></i></div>
+            <div>
+              <div class="cert-verified"><i class="ti ti-circle-check" style="font-size:14px;margin-right:4px;color:#639922"></i>Certificado verificado y auténtico</div>
+              <div class="cert-hash">Hash: 0x3f9a8b2e1d4c5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d2</div>
+            </div>
+          </div>
+          <div class="cert-fields">
+            <div class="cf-item"><div class="cf-label">Alumno</div><div class="cf-val">Ana Gómez</div></div>
+            <div class="cf-item"><div class="cf-label">Legajo</div><div class="cf-val">11874 · FING-UTN Mendoza</div></div>
+            <div class="cf-item"><div class="cf-label">Empresa</div><div class="cf-val">TechMendoza S.A.</div></div>
+            <div class="cf-item"><div class="cf-label">Rol</div><div class="cf-val">Analista QA Python</div></div>
+            <div class="cf-item"><div class="cf-label">Duración</div><div class="cf-val">01/01/2026 → 01/06/2026</div></div>
+            <div class="cf-item"><div class="cf-label">Evaluación</div><div class="cf-val">Muy bueno (9/10)</div></div>
+          </div>
+          <div class="chain-row">
+            <div class="chain-dot"></div>
+            Registrado en Polygon · Bloque #58241093 · Emitido 01/06/2026 · Sin modificaciones
+          </div>
+        </div>
+        <div style="text-align:center;font-size:12px;color:#888;padding:6px 0">
+          <i class="ti ti-lock" style="font-size:13px;margin-right:4px"></i>
+          Este certificado está almacenado en blockchain. No puede ser falsificado ni modificado por nadie.
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div style="font-size:11px;color:#AAA;text-align:center;margin-top:10px">Mockup de diseño — no funcional · PasantIA 2026</div>
+</div>
+
+<script>
+function sw(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.vt').forEach(b => b.classList.remove('active'));
+  document.getElementById('v-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>

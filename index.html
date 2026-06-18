@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PasantIA</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090f;--surface:#13131f;--surface2:#1c1c2e;--surface3:#252538;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --purple:#7c3aed;--purple-light:#a78bfa;--purple-dim:rgba(124,58,237,0.15);
+  --pink:#ec4899;--green:#10b981;--green-dim:rgba(16,185,129,0.12);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.12);
+  --yellow:#f59e0b;--yellow-dim:rgba(245,158,11,0.12);
+  --text:#f1f0ff;--muted:#6b6b8a;--muted2:#9090aa;
+  --card-w:340px;--card-h:490px;
+  --sidebar:240px;
+  --radius:16px;--radius-sm:10px;--radius-xs:7px;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+.blob{position:fixed;border-radius:50%;filter:blur(130px);opacity:0.10;pointer-events:none;z-index:0}
+.blob-1{width:600px;height:600px;background:var(--purple);top:-150px;left:-150px}
+.blob-2{width:500px;height:500px;background:var(--pink);bottom:-100px;right:-100px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:99px}
+
+/* ── UTILS ── */
+.grad{background:linear-gradient(90deg,var(--purple-light),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-2{gap:8px}.gap-3{gap:12px}.gap-4{gap:16px}
+.w-full{width:100%}.text-muted{color:var(--muted)}.text-sm{font-size:0.85rem}.text-xs{font-size:0.75rem}.font-bold{font-weight:700}.font-semibold{font-weight:600}
+.mt-1{margin-top:4px}.mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}
+.hidden{display:none!important}
+
+/* ── ICONS ── */
+[data-lucide]{width:18px;height:18px;stroke:currentColor;flex-shrink:0}
+.icon-sm [data-lucide]{width:14px;height:14px}
+.icon-lg [data-lucide]{width:22px;height:22px}
+.icon-xl [data-lucide]{width:28px;height:28px}
+
+/* ── TOP NAV ── */
+#topnav{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid var(--border);background:rgba(9,9,15,0.85);backdrop-filter:blur(16px)}
+.logo{display:flex;align-items:center;gap:10px;font-size:1.2rem;font-weight:800;letter-spacing:-0.5px;cursor:pointer}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--purple),var(--pink));border-radius:10px;display:flex;align-items:center;justify-content:center;color:white}
+.logo-icon [data-lucide]{width:16px;height:16px}
+.logo span{color:var(--purple-light)}
+.nav-right{display:flex;align-items:center;gap:12px}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.88rem;font-weight:600;transition:all 0.2s;white-space:nowrap;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--purple),#6d28d9);color:white;box-shadow:0 4px 20px rgba(124,58,237,0.3)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 28px rgba(124,58,237,0.4)}
+.btn-ghost{background:transparent;border:1px solid var(--border2);color:var(--muted2)}
+.btn-ghost:hover{border-color:var(--purple);color:var(--text);background:var(--purple-dim)}
+.btn-danger{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+.btn-success{background:var(--green-dim);border:1px solid rgba(16,185,129,0.25);color:var(--green)}
+.btn-success:hover{background:rgba(16,185,129,0.2)}
+.btn-sm{padding:7px 14px;font-size:0.8rem}
+.btn-icon{width:36px;height:36px;padding:0;border-radius:var(--radius-xs)}
+
+/* ── BADGE ── */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:0.75rem;font-weight:600}
+.badge-purple{background:var(--purple-dim);border:1px solid rgba(124,58,237,0.25);color:var(--purple-light)}
+.badge-green{background:var(--green-dim);border:1px solid rgba(16,185,129,0.25);color:#34d399}
+.badge-red{background:var(--red-dim);border:1px solid rgba(239,68,68,0.25);color:var(--red)}
+.badge-yellow{background:var(--yellow-dim);border:1px solid rgba(245,158,11,0.25);color:var(--yellow)}
+.badge-gray{background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
+
+/* ── NOTIF BELL ── */
+.notif-btn{position:relative;width:36px;height:36px;border-radius:var(--radius-xs);border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--muted2);transition:all 0.2s}
+.notif-btn:hover{border-color:var(--border2);color:var(--text)}
+.notif-dot{position:absolute;top:4px;right:4px;width:8px;height:8px;background:var(--pink);border-radius:50%;border:2px solid var(--bg)}
+
+/* ── AVATAR ── */
+.avatar{border-radius:50%;object-fit:cover;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--purple-light);flex-shrink:0}
+.avatar-sm{width:32px;height:32px;font-size:0.8rem}
+.avatar-md{width:44px;height:44px;font-size:1rem}
+.avatar-lg{width:72px;height:72px;font-size:1.5rem}
+.avatar-xl{width:96px;height:96px;font-size:2rem}
+
+/* ── LAYOUT ── */
+#app{padding-top:60px;min-height:100vh;position:relative;z-index:1}
+.dashboard{display:flex;min-height:calc(100vh - 60px)}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar);flex-shrink:0;border-right:1px solid var(--border);padding:20px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+.sidebar-user{padding:12px;border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.sidebar-user-info{overflow:hidden}
+.sidebar-user-info .name{font-size:0.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-user-info .role{font-size:0.75rem;color:var(--muted)}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-xs);cursor:pointer;font-size:0.88rem;color:var(--muted2);transition:all 0.15s;border:1px solid transparent;position:relative}
+.sidebar-item:hover{background:var(--surface);color:var(--text)}
+.sidebar-item.active{background:var(--purple-dim);color:var(--purple-light);border-color:rgba(124,58,237,0.2)}
+.sidebar-item .notif-count{margin-left:auto;background:var(--pink);color:white;border-radius:999px;font-size:0.7rem;font-weight:700;padding:1px 7px}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 4px}
+.sidebar-label{font-size:0.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:8px 12px 4px}
+
+/* ── MAIN CONTENT ── */
+.main-content{flex:1;padding:32px;overflow-y:auto;max-width:900px}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:1.5rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+.page-header p{color:var(--muted);font-size:0.9rem}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card-sm{padding:16px}
+.card:hover{border-color:var(--border2)}
+
+/* ── FORM ── */
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:0.82rem;font-weight:600;color:var(--muted2);margin-bottom:7px;text-transform:uppercase;letter-spacing:0.5px}
+.form-input{width:100%;padding:11px 14px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);color:var(--text);font-family:'Inter',sans-serif;font-size:0.9rem;transition:all 0.2s;outline:none}
+.form-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
+.form-input::placeholder{color:var(--muted)}
+select.form-input option{background:var(--surface2)}
+textarea.form-input{resize:vertical;min-height:90px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── TAGS INPUT ── */
+.tags-input-wrap{background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px;cursor:text;min-height:46px;align-items:center;transition:border-color 0.2s}
+.tags-input-wrap:focus-within{border-color:var(--purple);box-shadow:0 0 0 3px rgba(124,58,237,0.15)}
+.tags-input-wrap input{background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:0.88rem;flex:1;min-width:120px}
+.tags-input-wrap input::placeholder{color:var(--muted)}
+.tag-item{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:var(--purple-dim);border:1px solid rgba(124,58,237,0.25);border-radius:999px;font-size:0.78rem;color:var(--purple-light);font-weight:500}
+.tag-item button{background:none;border:none;color:var(--purple-light);cursor:pointer;padding:0;line-height:1;opacity:0.7}
+.tag-item button:hover{opacity:1}
+
+/* ── PHOTO UPLOAD ── */
+.photo-upload{width:96px;height:96px;border-radius:50%;border:2px dashed var(--border2);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:border-color 0.2s;background:var(--surface2);color:var(--muted);font-size:0.7rem;text-align:center;gap:4px}
+.photo-upload:hover{border-color:var(--purple);color:var(--purple-light)}
+.photo-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.photo-upload input{display:none}
+
+/* ── SWIPE CARDS ── */
+.stack-area{position:relative;width:var(--card-w);height:var(--card-h)}
+.stack-area::before{content:'';position:absolute;width:calc(var(--card-w) - 32px);height:calc(var(--card-h) - 24px);background:var(--surface);border:1px solid var(--border);border-radius:24px;left:16px;top:16px;z-index:0}
+.swipe-card{position:absolute;width:var(--card-w);height:var(--card-h);background:var(--surface);border:1px solid var(--border);border-radius:24px;overflow:hidden;cursor:grab;z-index:2;user-select:none}
+.swipe-card:active{cursor:grabbing}
+.card-cover{height:170px;position:relative;display:flex;align-items:flex-end;padding:14px}
+.card-cover-bg{position:absolute;inset:0;background-size:cover;background-position:center}
+.card-cover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(19,19,31,0.96) 0%,rgba(19,19,31,0.1) 100%)}
+.company-logo{position:relative;z-index:1;width:50px;height:50px;background:var(--bg);border-radius:13px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.3rem;overflow:hidden}
+.company-logo img{width:100%;height:100%;object-fit:cover;border-radius:11px}
+.card-body{padding:16px 18px}
+.card-body h3{font-size:1rem;font-weight:700;margin-bottom:3px}
+.card-body .sub{color:var(--muted);font-size:0.82rem;margin-bottom:12px}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.card-tag{padding:3px 9px;background:var(--purple-dim);border:1px solid rgba(124,58,237,0.2);border-radius:999px;font-size:0.72rem;color:var(--purple-light);font-weight:500}
+.card-tag.match{background:var(--green-dim);border-color:rgba(16,185,129,0.25);color:#34d399}
+.card-tag.no-match{background:var(--surface2);border-color:var(--border);color:var(--muted)}
+.card-info-row{display:flex;align-items:center;gap:6px;font-size:0.8rem;color:var(--muted);margin-bottom:5px}
+.compat-bar{margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.compat-label{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-bottom:5px}
+.compat-label strong{color:var(--purple-light)}
+.compat-track{height:3px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.compat-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--pink));border-radius:999px}
+.like-indicator,.nope-indicator{position:absolute;top:20px;padding:6px 16px;border-radius:10px;font-size:1rem;font-weight:800;letter-spacing:2px;opacity:0;z-index:10;border:3px solid;pointer-events:none}
+.like-indicator{left:16px;color:var(--green);border-color:var(--green);transform:rotate(-15deg)}
+.nope-indicator{right:16px;color:var(--red);border-color:var(--red);transform:rotate(15deg)}
+.action-buttons{display:flex;align-items:center;gap:14px;margin-top:24px}
+.action-btn{display:flex;align-items:center;justify-content:center;border-radius:50%;border:none;cursor:pointer;transition:all 0.2s}
+.action-btn.nope{width:56px;height:56px;background:var(--red-dim);border:2px solid rgba(239,68,68,0.3);color:var(--red)}
+.action-btn.nope:hover{background:rgba(239,68,68,0.22);transform:scale(1.08)}
+.action-btn.like{width:56px;height:56px;background:var(--green-dim);border:2px solid rgba(16,185,129,0.3);color:var(--green)}
+.action-btn.like:hover{background:rgba(16,185,129,0.22);transform:scale(1.08)}
+.action-btn.undo{width:42px;height:42px;background:var(--surface);border:1px solid var(--border);color:var(--muted)}
+.action-btn.undo:hover{color:var(--text);border-color:var(--border2)}
+.action-btn [data-lucide]{width:20px;height:20px}
+
+/* ── PROCESS TRACKER ── */
+.tracker{display:flex;align-items:flex-start;gap:0;margin:16px 0;position:relative}
+.tracker-step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.tracker-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:50%;width:100%;height:2px;background:var(--surface2);z-index:0}
+.tracker-step.done:not(:last-child)::after,.tracker-step.active:not(:last-child)::after{background:linear-gradient(90deg,var(--purple),var(--surface2))}
+.tracker-step.done:not(:last-child)::after{background:var(--purple)}
+.tracker-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:all 0.3s}
+.tracker-dot.done{background:var(--purple);border:2px solid var(--purple)}
+.tracker-dot.active{background:var(--purple-dim);border:2px solid var(--purple);box-shadow:0 0 0 4px rgba(124,58,237,0.2)}
+.tracker-dot.pending{background:var(--surface2);border:2px solid var(--border)}
+.tracker-dot [data-lucide]{width:12px;height:12px}
+.tracker-dot.done [data-lucide]{color:white}
+.tracker-dot.active [data-lucide]{color:var(--purple-light)}
+.tracker-dot.pending [data-lucide]{color:var(--muted)}
+.tracker-label{font-size:0.68rem;color:var(--muted);margin-top:6px;text-align:center;font-weight:500}
+.tracker-step.done .tracker-label{color:var(--purple-light)}
+.tracker-step.active .tracker-label{color:var(--text)}
+
+/* ── CERT CARD ── */
+.cert-card{background:linear-gradient(135deg,var(--surface) 0%,var(--surface2) 100%);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:relative;overflow:hidden}
+.cert-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;background:radial-gradient(circle,rgba(124,58,237,0.15),transparent);border-radius:50%}
+.cert-hash{font-family:monospace;font-size:0.72rem;color:var(--muted);background:var(--surface2);padding:6px 10px;border-radius:var(--radius-xs);border:1px solid var(--border);word-break:break-all;margin-top:8px}
+.qr-placeholder{width:80px;height:80px;border:1px solid var(--border);border-radius:var(--radius-xs);background:white;padding:6px;display:flex;align-items:center;justify-content:center}
+
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.stat-card .stat-num{font-size:2rem;font-weight:800;color:var(--purple-light);line-height:1}
+.stat-card .stat-label{font-size:0.8rem;color:var(--muted);margin-top:4px}
+.stat-card .stat-icon{width:36px;height:36px;border-radius:var(--radius-xs);display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+
+/* ── FILTERS ── */
+.filters-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.filter-pill{padding:6px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:0.8rem;cursor:pointer;transition:all 0.15s}
+.filter-pill:hover,.filter-pill.active{border-color:var(--purple);color:var(--purple-light);background:var(--purple-dim)}
+
+/* ── MATCH LIST ITEM ── */
+.match-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:12px;transition:border-color 0.2s}
+.match-item:hover{border-color:var(--border2)}
+
+/* ── LANDING ── */
+#screen-landing{padding:80px 24px 60px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.landing-title{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;line-height:1.1;letter-spacing:-2px;margin-bottom:18px}
+.landing-sub{color:var(--muted);max-width:500px;line-height:1.7;font-size:1rem;margin-bottom:40px}
+.role-grid{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin-bottom:56px}
+.role-card{width:200px;padding:24px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.25s;text-align:center}
+.role-card:hover{border-color:var(--purple);transform:translateY(-4px);background:var(--surface2);box-shadow:0 20px 60px rgba(124,58,237,0.12)}
+.role-card .ri{width:48px;height:48px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:white}
+.role-card .ri [data-lucide]{width:22px;height:22px}
+.role-card h3{font-size:0.95rem;font-weight:700;margin-bottom:6px}
+.role-card p{font-size:0.8rem;color:var(--muted);line-height:1.5}
+.landing-stats{display:flex;gap:40px;flex-wrap:wrap;justify-content:center}
+.l-stat .n{font-size:1.8rem;font-weight:800;color:var(--purple-light)}
+.l-stat .l{font-size:0.8rem;color:var(--muted);margin-top:2px}
+
+/* ── AUTH ── */
+#screen-auth{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.auth-box{width:100%;max-width:460px;background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px}
+.auth-box h2{font-size:1.4rem;font-weight:800;margin-bottom:6px}
+.auth-box .auth-sub{color:var(--muted);font-size:0.88rem;margin-bottom:28px}.role-select-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+.role-opt{padding:14px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;text-align:center;transition:all 0.2s}
+.role-opt:hover,.role-opt.selected{border-color:var(--purple);background:var(--purple-dim)}
+.role-opt [data-lucide]{width:20px;height:20px;margin:0 auto 6px;color:var(--muted)}
+.role-opt.selected [data-lucide]{color:var(--purple-light)}
+.role-opt .opt-label{font-size:0.8rem;font-weight:600;color:var(--muted)}
+.role-opt.selected .opt-label{color:var(--purple-light)}
+
+/* ── VERIFY PAGE ── */
+#screen-verify{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.verify-box{width:100%;max-width:540px}
+
+/* ── ANIMATIONS ── */
+@keyframes fade-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes swipe-left{to{transform:translateX(-150%) rotate(-30deg);opacity:0}}
+@keyframes swipe-right{to{transform:translateX(150%) rotate(30deg);opacity:0}}
+@keyframes card-enter{from{transform:scale(0.92) translateY(16px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+@keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.25)}100%{transform:scale(1);opacity:1}}
+.fade-up{animation:fade-up 0.35s ease}
+.animate-left{animation:swipe-left 0.38s ease forwards}
+.animate-right{animation:swipe-right 0.38s ease forwards}
+.animate-enter{animation:card-enter 0.32s ease}
+.pop{animation:pop 0.45s cubic-bezier(0.36,0.07,0.19,0.97)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:11px 18px;font-size:0.85rem;display:flex;align-items:center;gap:8px;z-index:999;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;backdrop-filter:blur(12px)}
+#toast.show{transform:translateX(-50%) translateY(0)}
+
+/* ── NOTIF PANEL ── */
+#notif-panel{position:fixed;top:68px;right:16px;width:300px;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);z-index:200;overflow:hidden;display:none;box-shadow:0 20px 60px rgba(0,0,0,0.5)}
+.notif-header{padding:14px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:0.9rem;display:flex;justify-content:space-between;align-items:center}
+.notif-list{max-height:300px;overflow-y:auto}
+.notif-entry{padding:12px 16px;border-bottom:1px solid var(--border);font-size:0.83rem;display:flex;gap:10px;align-items:flex-start}
+.notif-entry.unread{background:var(--purple-dim)}
+.notif-entry [data-lucide]{width:14px;height:14px;flex-shrink:0;margin-top:2px}
+.notif-empty{padding:20px;text-align:center;color:var(--muted);font-size:0.85rem}
+
+/* ── MATCH SCREEN ── */
+.match-overlay{position:fixed;inset:0;background:rgba(9,9,15,0.92);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.match-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;max-width:400px;width:100%;text-align:center}
+.match-title{font-size:2.2rem;font-weight:800;letter-spacing:-1px;margin:16px 0 8px}
+.match-avatars{display:flex;align-items:center;justify-content:center;gap:16px;margin:24px 0}
+
+/* ── RESPONSIVE ── */
+@media (max-width:900px) {
+  :root{--sidebar:56px}
+  .sidebar-user-info,.sidebar-label,.sidebar-divider{display:none}
+  .sidebar-user{justify-content:center;padding:8px}
+  .sidebar-item{justify-content:center;padding:10px}
+  .sidebar-item .sidebar-text{display:none}
+  .notif-count{position:absolute;top:2px;right:2px;min-width:16px;height:16px;font-size:0.65rem}
+  .main-content{padding:16px}
+  .page-header h1{font-size:1.3rem}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:640px) {
+  :root{--card-w:290px;--card-h:430px}
+  #topnav{padding:0 14px}
+  .logo span + *{display:none}
+  .nav-right{gap:6px}
+  .btn-sm{padding:6px 10px;font-size:0.75rem}
+  .landing-title{font-size:2rem}
+  .role-grid{flex-direction:column;align-items:center}
+  .role-card{width:100%;max-width:280px}
+  .match-box{padding:24px;margin:16px}
+  .auth-box{padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+
+<!-- TOP NAV -->
+<nav id="topnav">
+  <div class="logo" onclick="goHome()">
+    <div class="logo-icon"><i data-lucide="graduation-cap"></i></div>
+    Pasant<span>IA</span>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="btn btn-ghost btn-sm" onclick="showLogin()">Iniciar sesión</button>
+    <button class="btn btn-primary btn-sm" onclick="showRegister()">Registrarse</button>
+  </div>
+</nav>
+
+<div id="app">
+
+<!-- ══ LANDING ══ -->
+<div id="screen-landing" class="fade-up" style="display:none">
+  <div class="landing-title">La pasantía ideal<br>te está <span class="grad">esperando</span></div>
+  <p class="landing-sub">Matching inteligente entre alumnos y empresas con IA. Cada pasantía certificada en blockchain para siempre.</p>
+  <div class="role-grid">
+    <div class="role-card" onclick="startAuth('alumno')">
+      <div class="ri" style="background:linear-gradient(135deg,#7c3aed,#a78bfa)"><i data-lucide="user"></i></div>
+      <h3>Soy alumno</h3>
+      <p>Encontrá pasantías que se adapten a tu perfil</p>
+    </div>
+    <div class="role-card" onclick="startAuth('empresa')">
+      <div class="ri" style="background:linear-gradient(135deg,#ec4899,#f9a8d4)"><i data-lucide="building-2"></i></div>
+      <h3>Soy empresa</h3>
+      <p>Encontrá el talento universitario ideal</p>
+    </div>
+    <div class="role-card" onclick="startAuth('facultad')">
+      <div class="ri" style="background:linear-gradient(135deg,#10b981,#34d399)"><i data-lucide="shield-check"></i></div>
+      <h3>Soy facultad</h3>
+      <p>Administrá convenios y certificados</p>
+    </div>
+  </div>
+  <div class="landing-stats">
+    <div class="l-stat"><div class="n">94%</div><div class="l">Matches exitosos</div></div>
+    <div class="l-stat"><div class="n">340+</div><div class="l">Empresas</div></div>
+    <div class="l-stat"><div class="n">1.2K+</div><div class="l">Certificados emitidos</div></div>
+  </div>
+</div>
+
+<!-- ══ AUTH ══ -->
+<div id="screen-auth" style="display:none">
+  <div id="auth-content"></div>
+</div>
+
+<!-- ══ STUDENT DASHBOARD ══ -->
+<div id="screen-student" class="dashboard" style="display:none">
+  <div class="sidebar" id="sidebar-student"></div>
+  <div class="main-content" id="content-student"></div>
+</div>
+
+<!-- ══ COMPANY DASHBOARD ══ -->
+<div id="screen-company" class="dashboard" style="display:none">
+  <div class="sidebar" id="sidebar-company"></div>
+  <div class="main-content" id="content-company"></div>
+</div>
+
+<!-- ══ FACULTY DASHBOARD ══ -->
+<div id="screen-faculty" class="dashboard" style="display:none">
+  <div class="sidebar" id="sidebar-faculty"></div>
+  <div class="main-content" id="content-faculty"></div>
+</div>
+
+<!-- ══ VERIFY ══ -->
+<div id="screen-verify" style="display:none">
+  <div class="verify-box" id="verify-content"></div>
+</div>
+
+</div><!-- #app -->
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- NOTIF PANEL -->
+<div id="notif-panel">
+  <div class="notif-header">Notificaciones <span id="notif-mark" style="font-size:0.75rem;color:var(--purple-light);cursor:pointer" onclick="markAllRead()">Marcar todo leído</span></div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+
+<!-- MATCH OVERLAY -->
+<div class="match-overlay hidden" id="match-overlay">
+  <div class="match-box fade-up">
+    <div style="font-size:3rem" class="pop">🎉</div>
+    <div class="match-title grad">¡Es un Match!</div>
+    <p style="color:var(--muted);font-size:0.9rem" id="match-text"></p>
+    <div class="match-avatars" id="match-avatars"></div>
+    <div class="card" style="text-align:left;margin-bottom:20px" id="match-detail-box"></div>
+    <div id="match-contact-box" style="margin-bottom:16px"></div>
+    <div class="flex gap-3" style="justify-content:center">
+      <button class="btn btn-primary" id="match-btn-primary" onclick="closeMatch()">Ver mis matches</button>
+      <button class="btn btn-ghost" onclick="closeMatch()">Seguir explorando</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  STORAGE
+// ════════════════════════════════════════
+const DB = {
+  get: k => { try { return JSON.parse(localStorage.getItem('pasantia_'+k)) } catch { return null } },
+  set: (k,v) => localStorage.setItem('pasantia_'+k, JSON.stringify(v)),
+  push: (k,v) => { const a = DB.get(k)||[]; a.push(v); DB.set(k,a); return v },
+};
+
+// ════════════════════════════════════════
+//  SEED DATA
+// ════════════════════════════════════════
+const SEED_JOBS = [
+  { id:'j1', companyId:'demo-emp-1', company:'Mercado Libre', role:'Desarrollador Full Stack Jr.', area:'Tecnología', duration:'6 meses', salary:'$120.000', modality:'Híbrido', location:'CABA', skills:['React','Node.js','PostgreSQL','Git'], description:'Vas a trabajar en el equipo de Marketplace desarrollando features con React en el frontend y Node.js en el backend.', cover:'linear-gradient(135deg,#ffe259,#ffa751)', status:'approved', applicants:3 },
+  { id:'j2', companyId:'demo-emp-2', company:'Banco Nación', role:'Analista de Datos Jr.', area:'Datos', duration:'3 meses', salary:'$95.000', modality:'Presencial', location:'CABA', skills:['Python','SQL','Power BI','Excel'], description:'Análisis de datos de clientes para generar reportes y dashboards. Trabajarás con el equipo de Business Intelligence.', cover:'linear-gradient(135deg,#0f2027,#2c5364)', status:'approved', applicants:2 },
+  { id:'j3', companyId:'demo-emp-3', company:'Globant', role:'QA Engineer Jr.', area:'Tecnología', duration:'4 meses', salary:'$110.000', modality:'Remoto', location:'Remoto', skills:['Selenium','Testing','Agile','Git','JIRA'], description:'Diseño y ejecución de casos de prueba para aplicaciones web. Trabajarás con metodologías ágiles en un equipo internacional.', cover:'linear-gradient(135deg,#1a1a2e,#0f3460)', status:'approved', applicants:1 },
+  { id:'j4', companyId:'demo-emp-4', company:'Ualá', role:'UX/UI Designer Jr.', area:'Diseño', duration:'6 meses', salary:'$130.000', modality:'Híbrido', location:'CABA', skills:['Figma','Prototipado','CSS','Diseño'], description:'Crear wireframes, prototipos y diseños finales para la app mobile de Ualá. Vas a participar en research con usuarios reales.', cover:'linear-gradient(135deg,#667eea,#764ba2)', status:'approved', applicants:4 },
+  { id:'j5', companyId:'demo-emp-5', company:'Accenture', role:'DevOps Jr.', area:'Infraestructura', duration:'5 meses', salary:'$115.000', modality:'Remoto', location:'Remoto', skills:['Docker','Linux','CI/CD','AWS','Kubernetes'], description:'Automatización de pipelines de CI/CD y gestión de infraestructura en AWS. Proyecto para cliente del sector financiero.', cover:'linear-gradient(135deg,#11998e,#38ef7d)', status:'approved', applicants:2 },
+];
+
+const SEED_CANDS = [
+  { id:'s1', name:'Lucía Fernández', career:'Lic. en Sistemas de Información · 4to año', university:'UCH', skills:['React','JavaScript','Python','SQL','Git'], cover:'linear-gradient(135deg,#7c3aed,#ec4899)', bio:'Apasionada por el desarrollo web y la IA. Busco pasantía donde aplicar React y Python en proyectos reales.' },
+  { id:'s2', name:'Martín López', career:'Lic. en Sistemas de Información · 4to año', university:'UCH', skills:['Java','Spring Boot','Docker','Linux','PostgreSQL'], cover:'linear-gradient(135deg,#0f2027,#2c5364)', bio:'Backend developer con experiencia en microservicios y APIs REST. Fanático de las buenas prácticas y la documentación.' },
+  { id:'s3', name:'Valentina Ruiz', career:'Lic. en Sistemas de Información · 4to año', university:'UCH', skills:['Figma','JavaScript','CSS','React','UX Research'], cover:'linear-gradient(135deg,#667eea,#764ba2)', bio:'Combino diseño y código para crear experiencias intuitivas. Especializada en Figma y diseño centrado en el usuario.' },
+  { id:'s4', name:'Agustín Morales', career:'Lic. en Sistemas de Información · 4to año', university:'UCH', skills:['Python','Machine Learning','SQL','TensorFlow','Power BI'], cover:'linear-gradient(135deg,#11998e,#38ef7d)', bio:'Data scientist enfocado en modelos predictivos y visualización. Participé en competencias de Kaggle con top 15%.' },
+];
+
+// Usuarios demo pre-registrados para la presentación
+const DEMO_USERS = [
+  { id:'demo-st-1', role:'student', name:'Lucía Fernández', career:'Lic. en Sistemas de Información', year:'4to año', skills:['React','JavaScript','Python','SQL','Git'], university:'UCH', bio:'Apasionada por el desarrollo web y la IA.', email:'lucia@uch.edu.ar', password:'demo2026' },
+  { id:'demo-emp-1', role:'empresa', name:'Mercado Libre', contact:'Carlos Rodríguez', sector:'Tecnología', size:'Grande (500+ empleados)', location:'CABA', email:'rrhh@mercadolibre.com', password:'demo2026' },
+];
+
+const DEMO_MATCHES = [
+  { id:'demo-match-1', studentId:'demo-st-1', studentName:'Lucía Fernández', companyId:'demo-emp-1', company:'Mercado Libre', role:'Desarrollador Full Stack Jr.', jobId:'j1', duration:'6 meses', step:1, createdAt:'15/06/2026, 10:30' },
+];
+
+function initDB() {
+  if (DB.get('seedVersion') !== '5') {
+    DB.set('jobs', SEED_JOBS);
+    DB.set('candidates', SEED_CANDS);
+    DB.set('users', [...DEMO_USERS]);
+    DB.set('matches', [...DEMO_MATCHES]);
+    DB.set('company_likes', [{ companyId:'demo-emp-1', candidateId:'s1', at: Date.now() }]);
+    DB.set('certificates', []);
+    DB.set('notifications', [
+      { id:'n-demo-1', userId:'demo-st-1', text:'¡Tenés un nuevo match con Mercado Libre!', icon:'heart', time:'Hace 2 días', read:false }
+    ]);
+    DB.set('currentUser', null);
+    DB.set('seedVersion', '5');
+  }
+}
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let currentUser = null;
+let currentTab = '';
+let swipeState = { index:0, liked:[], history:[] };
+let activeFilters = { modality:'', area:'' };
+
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+function showScreen(name) {
+  document.querySelectorAll('#app > div').forEach(d => d.style.display = 'none');
+  const el = document.getElementById('screen-'+name);
+  if (el) el.style.display = 'flex';
+  if (name === 'verify') renderVerify();
+  renderNavRight();
+  icons();
+}
+
+function goHome() {
+  if (currentUser) {
+    showScreen(currentUser.role);
+  } else {
+    showScreen('landing');
+  }
+}
+
+// ════════════════════════════════════════
+//  NAV RIGHT
+// ════════════════════════════════════════
+function renderNavRight() {
+  const el = document.getElementById('nav-right');
+  if (!currentUser) {
+    el.innerHTML = `
+      <button class="btn btn-ghost btn-sm" onclick="showLogin()">Iniciar sesión</button>
+      <button class="btn btn-primary btn-sm" onclick="showRegister()">Registrarse</button>`;
+  } else {
+    const notifs = (DB.get('notifications')||[]).filter(n => n.userId === currentUser.id && !n.read);
+    el.innerHTML = `
+      <button class="btn btn-ghost btn-sm" onclick="showScreen('verify')">
+        <i data-lucide="shield-check"></i> Verificar certificado
+      </button>
+      <div style="position:relative">
+        <div class="notif-btn" onclick="toggleNotif()">
+          <i data-lucide="bell"></i>
+          ${notifs.length ? `<div class="notif-dot"></div>` : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer" onclick="logout()">
+        ${avatarHTML(currentUser,'sm')}
+        <span style="font-size:0.83rem;font-weight:600">${currentUser.name.split(' ')[0]}</span>
+        <i data-lucide="log-out" style="width:14px;height:14px;color:var(--muted)"></i>
+      </div>`;
+    renderNotifPanel();
+  }
+  icons();
+}
+
+function toggleNotif() {
+  const p = document.getElementById('notif-panel');
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function renderNotifPanel() {
+  const notifs = (DB.get('notifications')||[]).filter(n => n.userId === currentUser.id).reverse();
+  const list = document.getElementById('notif-list');
+  if (!notifs.length) {
+    list.innerHTML = '<div class="notif-empty">Sin notificaciones</div>';
+    return;
+  }
+  list.innerHTML = notifs.map(n => `
+    <div class="notif-entry ${n.read?'':'unread'}">
+      <i data-lucide="${n.icon||'bell'}"></i>
+      <div><div style="font-weight:500">${n.text}</div><div style="color:var(--muted);font-size:0.75rem;margin-top:2px">${n.time}</div></div>
+    </div>`).join('');
+  icons();
+}
+
+function markAllRead() {
+  let notifs = DB.get('notifications')||[];
+  notifs = notifs.map(n => n.userId === currentUser.id ? {...n, read:true} : n);
+  DB.set('notifications', notifs);
+  renderNavRight();
+}
+
+function addNotif(userId, text, icon='bell') {
+  DB.push('notifications', { id:'n'+Date.now(), userId, text, icon, time:'Ahora', read:false });
+  if (currentUser && currentUser.id === userId) renderNavRight();
+}
+
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+let authRole = '';
+let authStep = 1;
+let studentSkills = [];
+let jobSkills = [];
+let photoData = '';
+
+function startAuth(role) {
+  authRole = role;
+  authStep = role ? 2 : 1;
+  showScreen('auth');
+  renderAuth();
+}
+
+// ════════════════════════════════════════
+//  LOGIN (returning users)
+// ════════════════════════════════════════
+function showRegister() {
+  showScreen('auth');
+  const el = document.getElementById('auth-content');
+  el.className = 'fade-up';
+  el.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:40px 20px';
+  el.innerHTML = `
+    <div class="auth-box" style="max-width:400px">
+      <div style="text-align:center;margin-bottom:28px">
+        <h2 style="margin:0 0 6px">Crear cuenta</h2>
+        <p style="color:var(--muted);font-size:0.85rem;margin:0">¿Quién sos?</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="role-opt" onclick="startAuth('alumno')" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left">
+          <div style="width:38px;height:38px;background:linear-gradient(135deg,#7c3aed,#a78bfa);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i data-lucide="user" style="color:white;width:18px;height:18px"></i>
+          </div>
+          <div><div style="font-weight:700">Alumno</div><div style="color:var(--muted);font-size:0.8rem">Lic. en Sistemas · 4to año</div></div>
+        </div>
+        <div class="role-opt" onclick="startAuth('empresa')" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left">
+          <div style="width:38px;height:38px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i data-lucide="building-2" style="color:white;width:18px;height:18px"></i>
+          </div>
+          <div><div style="font-weight:700">Empresa</div><div style="color:var(--muted);font-size:0.8rem">Publicar pasantías y buscar candidatos</div></div>
+        </div>
+        <div class="role-opt" onclick="startAuth('facultad')" style="display:flex;align-items:center;gap:14px;padding:16px;text-align:left">
+          <div style="width:38px;height:38px;background:linear-gradient(135deg,#10b981,#34d399);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i data-lucide="shield" style="color:white;width:18px;height:18px"></i>
+          </div>
+          <div><div style="font-weight:700">Facultad</div><div style="color:var(--muted);font-size:0.8rem">Aprobar convenios y emitir certificados</div></div>
+        </div>
+      </div>
+      <button class="btn btn-ghost w-full" style="margin-top:16px" onclick="showScreen('landing')">← Volver</button>
+    </div>`;
+  icons();
+}
+
+function showLogin() {
+  showScreen('auth');
+  const el = document.getElementById('auth-content');
+  el.className = 'fade-up';
+  el.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:40px 20px';
+  el.innerHTML = `
+    <div class="auth-box" style="max-width:400px">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="width:52px;height:52px;background:var(--purple-dim);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+          <i data-lucide="log-in" style="color:var(--purple-light)"></i>
+        </div>
+        <h2 style="margin:0 0 4px">Bienvenida de nuevo</h2>
+        <p style="color:var(--muted);font-size:0.85rem;margin:0">Ingresá tu email y contraseña</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="login-email" type="email" placeholder="tu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Contraseña</label>
+        <input class="form-input" id="login-pass" type="password" placeholder="Tu contraseña"
+          onkeydown="if(event.key==='Enter') doLogin()">
+      </div>
+      <div id="login-error" style="display:none;color:#f87171;font-size:0.83rem;margin-bottom:12px;text-align:center"></div>
+      <button class="btn btn-primary w-full" onclick="doLogin()">Ingresar</button>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-top:16px;font-size:0.78rem;color:var(--muted);line-height:1.7">
+        <div style="font-weight:600;color:var(--muted2);margin-bottom:4px">Cuentas demo:</div>
+        <div>Alumno: <span style="color:var(--purple-light)">lucia@uch.edu.ar</span> / <span style="color:var(--purple-light)">demo2026</span></div>
+        <div>Empresa: <span style="color:var(--purple-light)">rrhh@mercadolibre.com</span> / <span style="color:var(--purple-light)">demo2026</span></div>
+      </div>
+      <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;text-align:center">
+        <button class="btn btn-ghost btn-sm" onclick="showLoginFacultad()">
+          <i data-lucide="shield"></i> Acceso Facultad
+        </button>
+      </div>
+      <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="showScreen('landing')">← Volver</button>
+    </div>`;
+  icons();
+}
+
+function doLogin() {
+  const email = (document.getElementById('login-email').value||'').trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  if (!email) { errEl.textContent = 'Ingresá tu email'; errEl.style.display='block'; return; }
+  if (!pass) { errEl.textContent = 'Ingresá tu contraseña'; errEl.style.display='block'; return; }
+  const users = DB.get('users') || [];
+  const user = users.find(u => (u.email||'').toLowerCase() === email);
+  if (!user) { errEl.textContent = 'No encontramos esa cuenta. ¿Ya te registraste?'; errEl.style.display='block'; return; }
+  if (user.password !== pass) { errEl.textContent = 'Contraseña incorrecta'; errEl.style.display='block'; return; }
+  errEl.style.display = 'none';
+  login(user);
+}
+
+function showLoginFacultad() {
+  const el = document.getElementById('auth-content');
+  el.innerHTML = `
+    <div class="auth-box" style="max-width:380px">
+      <h2 style="margin-bottom:4px">Acceso Facultad</h2>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:24px">Ingresá el código de acceso</p>
+      <div class="form-group">
+        <label class="form-label">Nombre</label>
+        <input class="form-input" id="fac-name" type="text" placeholder="Ej: María González">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Código de acceso</label>
+        <input class="form-input" id="fac-code" type="password" placeholder="Código">
+      </div>
+      <button class="btn btn-primary w-full" onclick="loginFacultad()">Ingresar</button>
+      <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="showLogin()">← Volver</button>
+    </div>`;
+  icons();
+}
+
+function loginFacultad() {
+  const code = document.getElementById('fac-code').value.trim();
+  const name = document.getElementById('fac-name').value.trim() || 'Coordinadora';
+  if (code !== 'faculty2026') { toast('Código incorrecto'); return; }
+  login({ id:'faculty_'+Date.now(), role:'facultad', name });
+}
+
+function loginAs(userId) {
+  const users = DB.get('users') || [];
+  const user = users.find(u => u.id === userId);
+  if (!user) return;
+  login(user);
+}
+
+function renderAuth() {
+  const el = document.getElementById('auth-content');
+  el.className = 'fade-up';
+  el.style.cssText = 'display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:40px 20px';
+
+  if (authStep === 1) {
+    el.innerHTML = `
+      <div class="auth-box">
+        <h2>Bienvenida a PasantIA</h2>
+        <p class="auth-sub">¿Con qué rol querés ingresar?</p>
+        <div class="role-select-grid">
+          <div class="role-opt ${authRole==='alumno'?'selected':''}" onclick="selectRole('alumno')">
+            <i data-lucide="user"></i><div class="opt-label">Alumno</div>
+          </div>
+          <div class="role-opt ${authRole==='empresa'?'selected':''}" onclick="selectRole('empresa')">
+            <i data-lucide="building-2"></i><div class="opt-label">Empresa</div>
+          </div>
+          <div class="role-opt ${authRole==='facultad'?'selected':''}" onclick="selectRole('facultad')">
+            <i data-lucide="shield-check"></i><div class="opt-label">Facultad</div>
+          </div>
+        </div>
+        <div style="margin-top:20px">
+          <button class="btn btn-primary w-full" onclick="authStep=2;renderAuth()">Continuar</button>
+        </div>
+      </div>`;
+  } else if (authStep === 2 && authRole === 'alumno') {
+    studentSkills = [];
+    el.innerHTML = `
+      <div class="auth-box" style="max-width:520px">
+        <h2>Crear perfil de alumno</h2>
+        <p class="auth-sub">Completá tu información para comenzar</p>
+        <div style="display:flex;gap:20px;align-items:center;margin-bottom:24px">
+          <label class="photo-upload" id="photo-label">
+            <i data-lucide="camera"></i>
+            <span>Subir foto</span>
+            <input type="file" accept="image/*" onchange="handlePhoto(this)"/>
+          </label>
+          <div style="flex:1">
+            <div class="form-group" style="margin-bottom:12px">
+              <label class="form-label">Nombre completo</label>
+              <input class="form-input" id="a-name" placeholder="Ej: Lucía Fernández"/>
+            </div>
+            <div class="form-group" style="margin-bottom:0">
+              <label class="form-label">DNI</label>
+              <input class="form-input" id="a-dni" placeholder="Ej: 40123456"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" id="a-email" type="email" placeholder="tu@email.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input class="form-input" id="a-pass" type="password" placeholder="Mín. 6 caracteres"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Carrera</label>
+            <select class="form-input" id="a-career">
+              <option>Lic. en Sistemas de Información</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Año</label>
+            <select class="form-input" id="a-year">
+              <option>4to año</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Universidad</label>
+          <input class="form-input" id="a-uni" placeholder="Ej: Universidad Champagnat"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bio corta</label>
+          <textarea class="form-input" id="a-bio" placeholder="Contá algo de vos en 1-2 oraciones" style="min-height:70px"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Habilidades (Enter para agregar)</label>
+          <div class="tags-input-wrap" id="skills-wrap">
+            ${studentSkills.map(s=>`<span class="tag-item">${s}<button onclick="removeSkill('${s}','student')">×</button></span>`).join('')}
+            <input placeholder="React, Python, SQL..." onkeydown="addSkill(event,'student')" id="skill-input"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="btn btn-ghost" onclick="showScreen('landing')">Volver</button>
+          <button class="btn btn-primary" style="flex:1" onclick="registerAlumno()">Crear mi perfil</button>
+        </div>
+      </div>`;
+  } else if (authStep === 2 && authRole === 'empresa') {
+    el.innerHTML = `
+      <div class="auth-box">
+        <h2>Registrar empresa</h2>
+        <p class="auth-sub">Completá los datos de tu empresa</p>
+        <div class="form-group">
+          <label class="form-label">Nombre de la empresa</label>
+          <input class="form-input" id="e-name" placeholder="Ej: TechCorp S.A."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">CUIT</label>
+          <input class="form-input" id="e-cuit" placeholder="Ej: 30-12345678-9"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Sector</label>
+            <select class="form-input" id="e-sector">
+              <option>Tecnología</option><option>Finanzas</option><option>Salud</option>
+              <option>Telecomunicaciones</option><option>Consultoría</option><option>Otro</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tamaño</label>
+            <select class="form-input" id="e-size">
+              <option>1-50 empleados</option><option>51-200</option><option>201-1000</option><option>+1000</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-input" id="e-desc" placeholder="¿A qué se dedica tu empresa?"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email de contacto</label>
+            <input class="form-input" id="e-email" type="email" placeholder="rrhh@empresa.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contraseña</label>
+            <input class="form-input" id="e-pass" type="password" placeholder="Mín. 6 caracteres"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="showScreen('landing')">Volver</button>
+          <button class="btn btn-primary" style="flex:1" onclick="registerEmpresa()">Registrar empresa</button>
+        </div>
+      </div>`;
+  } else if (authStep === 2 && authRole === 'facultad') {
+    el.innerHTML = `
+      <div class="auth-box">
+        <h2>Acceso facultad</h2>
+        <p class="auth-sub">Ingresá el código institucional para continuar</p>
+        <div class="form-group">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-input" id="f-name" placeholder="Ej: María González"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email institucional</label>
+          <input class="form-input" id="f-email" placeholder="nombre@uch.edu.ar"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Código de acceso</label>
+          <input class="form-input" id="f-code" type="password" placeholder="Código institucional"/>
+          <div style="font-size:0.75rem;color:var(--muted);margin-top:5px">Para el demo usá: <strong style="color:var(--purple-light)">faculty2026</strong></div>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn btn-ghost" onclick="showScreen('landing')">Volver</button>
+          <button class="btn btn-primary" style="flex:1" onclick="registerFacultad()">Ingresar</button>
+        </div>
+      </div>`;
+  }
+  icons();
+}
+
+function selectRole(r) {
+  authRole = r;
+  renderAuth();
+}
+
+function handlePhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoData = e.target.result;
+    const label = document.getElementById('photo-label');
+    label.innerHTML = `<img src="${photoData}" alt="foto"/><input type="file" accept="image/*" onchange="handlePhoto(this)"/>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function addSkill(e, type) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const val = e.target.value.trim();
+  if (!val) return;
+  if (type === 'student') {
+    if (!studentSkills.includes(val)) { studentSkills.push(val); renderSkillsInput('student'); }
+  } else {
+    if (!jobSkills.includes(val)) { jobSkills.push(val); renderSkillsInput('job'); }
+  }
+  e.target.value = '';
+}
+
+function removeSkill(s, type) {
+  if (type === 'student') { studentSkills = studentSkills.filter(x=>x!==s); renderSkillsInput('student'); }
+  else { jobSkills = jobSkills.filter(x=>x!==s); renderSkillsInput('job'); }
+}
+
+function renderSkillsInput(type) {
+  const wrap = document.getElementById(type==='student'?'skills-wrap':'job-skills-wrap');
+  if (!wrap) return;
+  const skills = type === 'student' ? studentSkills : jobSkills;
+  wrap.innerHTML = skills.map(s=>`<span class="tag-item">${s}<button onclick="removeSkill('${s}','${type}')">×</button></span>`).join('')
+    + `<input placeholder="${type==='student'?'React, Python...':'Node.js, Python...'}" onkeydown="addSkill(event,'${type}')" id="${type==='student'?'skill-input':'job-skill-input'}"/>`;
+}
+
+function registerAlumno() {
+  const name = document.getElementById('a-name').value.trim();
+  const email = (document.getElementById('a-email').value||'').trim().toLowerCase();
+  const pass = document.getElementById('a-pass').value;
+  if (!name) { toast('Completá tu nombre'); return; }
+  if (!email) { toast('Completá tu email'); return; }
+  if (pass.length < 6) { toast('La contraseña debe tener al menos 6 caracteres'); return; }
+  const existing = (DB.get('users')||[]).find(u=>(u.email||'').toLowerCase()===email);
+  if (existing) { toast('Ya existe una cuenta con ese email'); return; }
+  const user = {
+    id: 'u'+Date.now(), role:'student',
+    name, email, password: pass,
+    dni: document.getElementById('a-dni').value,
+    career: document.getElementById('a-career').value,
+    year: document.getElementById('a-year').value,
+    university: document.getElementById('a-uni').value || 'Universidad Champagnat',
+    bio: document.getElementById('a-bio').value,
+    skills: [...studentSkills],
+    photo: photoData,
+    createdAt: new Date().toISOString()
+  };
+  DB.push('users', user);
+  // También agregarlo al pool de candidatos visible para empresas
+  DB.push('candidates', {
+    id: user.id, name: user.name,
+    career: `${user.career} · ${user.year}`,
+    university: user.university, skills: user.skills||[],
+    cover: avatarBg(user.name), bio: user.bio||''
+  });
+  login(user);
+}
+
+function registerEmpresa() {
+  const name = document.getElementById('e-name').value.trim();
+  const email = (document.getElementById('e-email').value||'').trim().toLowerCase();
+  const pass = document.getElementById('e-pass').value;
+  if (!name) { toast('Completá el nombre de la empresa'); return; }
+  if (!email) { toast('Completá el email de contacto'); return; }
+  if (pass.length < 6) { toast('La contraseña debe tener al menos 6 caracteres'); return; }
+  const existing = (DB.get('users')||[]).find(u=>(u.email||'').toLowerCase()===email);
+  if (existing) { toast('Ya existe una cuenta con ese email'); return; }
+  const user = {
+    id:'u'+Date.now(), role:'empresa',
+    name, email, password: pass,
+    cuit: document.getElementById('e-cuit').value,
+    sector: document.getElementById('e-sector').value,
+    size: document.getElementById('e-size').value,
+    description: document.getElementById('e-desc').value,
+    createdAt: new Date().toISOString()
+  };
+  DB.push('users', user);
+  login(user);
+}
+
+function registerFacultad() {
+  const code = document.getElementById('f-code').value;
+  if (code !== 'faculty2026') { toast('Código incorrecto'); return; }
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('Completá tu nombre'); return; }
+  const user = { id:'u'+Date.now(), role:'facultad', name, email: document.getElementById('f-email').value };
+  DB.push('users', user);
+  login(user);
+}
+
+function login(user) {
+  currentUser = user;
+  DB.set('currentUser', user);
+  swipeState = { index:0, liked:[], history:[] };
+  photoData = '';
+  toast('Bienvenida, '+user.name.split(' ')[0]+'!');
+  renderDashboard();
+}
+
+function logout() {
+  currentUser = null;
+  DB.set('currentUser', null);
+  showScreen('landing');
+  renderNavRight();
+}
+
+// ════════════════════════════════════════
+//  STUDENT DASHBOARD
+// ════════════════════════════════════════
+function renderDashboard() {
+  if (!currentUser) { showScreen('landing'); return; }
+  const role = currentUser.role;
+  if (role === 'student') { renderStudentDash('explorar'); showScreen('student'); }
+  else if (role === 'empresa') {
+    const hasMatches = (DB.get('matches')||[]).some(m => m.companyId === currentUser.id);
+    renderCompanyDash(hasMatches ? 'matches' : 'candidatos');
+    showScreen('company');
+  }
+  else { renderFacultyDash('certificados'); showScreen('faculty'); }
+}
+
+function renderStudentDash(tab) {
+  currentTab = tab;
+  const matches = (DB.get('matches')||[]).filter(m=>m.studentId===currentUser.id);
+  const certs = (DB.get('certificates')||[]).filter(c=>c.studentId===currentUser.id);
+  const notifs = (DB.get('notifications')||[]).filter(n=>n.userId===currentUser.id&&!n.read);
+
+  document.getElementById('sidebar-student').innerHTML = `
+    <div class="sidebar-user">
+      ${avatarHTML(currentUser,'sm')}
+      <div class="sidebar-user-info">
+        <div class="name">${currentUser.name}</div>
+        <div class="role">${currentUser.career||'Alumno'}</div>
+      </div>
+    </div>
+    <div class="sidebar-label">Principal</div>
+    ${sidebarItem('explorar','compass','Explorar',tab,'student')}
+    ${sidebarItem('matches','heart','Mis matches',tab,'student', matches.length)}
+    ${sidebarItem('certificados','award','Certificados',tab,'student', certs.length)}
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-label">Cuenta</div>
+    ${sidebarItem('perfil','user','Mi perfil',tab,'student')}
+    <div class="sidebar-item" onclick="logout()" style="margin-top:auto" title="Cerrar sesión">
+      <i data-lucide="log-out"></i><span class="sidebar-text"> Cerrar sesión</span>
+    </div>`;
+
+  const content = document.getElementById('content-student');
+  if (tab === 'explorar') content.innerHTML = renderExplorar();
+  else if (tab === 'matches') content.innerHTML = renderStudentMatches();
+  else if (tab === 'certificados') content.innerHTML = renderCertificados();
+  else if (tab === 'perfil') content.innerHTML = renderPerfil();
+
+  icons();
+  if (tab === 'explorar') initSwipe();
+}
+
+function sidebarItem(id, icon, label, current, role, badge) {
+  const fn = role === 'student' ? 'renderStudentDash' : role === 'empresa' ? 'renderCompanyDash' : 'renderFacultyDash';
+  return `<div class="sidebar-item ${current===id?'active':''}" onclick="${fn}('${id}')" title="${label}">
+    <i data-lucide="${icon}"></i><span class="sidebar-text">${label}</span>
+    ${badge ? `<span class="notif-count">${badge}</span>` : ''}
+  </div>`;
+}
+
+// ── EXPLORAR ──
+function renderExplorar() {
+  const jobs = getFilteredJobs();
+  return `
+    <div class="page-header">
+      <h1>Explorar pasantías</h1>
+      <p>La IA seleccionó las mejores opciones según tu perfil</p>
+    </div>
+    <div class="filters-bar">
+      <span class="filter-pill ${!activeFilters.modality?'active':''}" onclick="setFilter('modality','')">Todas</span>
+      <span class="filter-pill ${activeFilters.modality==='Remoto'?'active':''}" onclick="setFilter('modality','Remoto')">Remoto</span>
+      <span class="filter-pill ${activeFilters.modality==='Híbrido'?'active':''}" onclick="setFilter('modality','Híbrido')">Híbrido</span>
+      <span class="filter-pill ${activeFilters.modality==='Presencial'?'active':''}" onclick="setFilter('modality','Presencial')">Presencial</span>
+      <span class="filter-pill ${activeFilters.area==='Tecnología'?'active':''}" onclick="setFilter('area','Tecnología')">Tecnología</span>
+      <span class="filter-pill ${activeFilters.area==='Datos'?'active':''}" onclick="setFilter('area','Datos')">Datos</span>
+      <span class="filter-pill ${activeFilters.area==='Diseño'?'active':''}" onclick="setFilter('area','Diseño')">Diseño</span>
+    </div>
+    <div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+      <div>
+        <div class="stack-area" id="swipe-stack" style="margin-bottom:20px"></div>
+        <div class="action-buttons" style="justify-content:center">
+          <button class="action-btn undo" onclick="undoSwipe()"><i data-lucide="rotate-ccw"></i></button>
+          <button class="action-btn nope" onclick="doSwipe('nope')"><i data-lucide="x"></i></button>
+          <button class="action-btn like" onclick="doSwipe('like')"><i data-lucide="heart"></i></button>
+        </div>
+        <div id="cards-counter" style="text-align:center;color:var(--muted);font-size:0.8rem;margin-top:8px"></div>
+      </div>
+      <div style="flex:1;min-width:220px" id="ai-panel"></div>
+    </div>`;
+}
+
+function getFilteredJobs() {
+  let jobs = DB.get('jobs') || [];
+  jobs = jobs.filter(j => j.status === 'approved');
+  if (activeFilters.modality) jobs = jobs.filter(j => j.modality === activeFilters.modality);
+  if (activeFilters.area) jobs = jobs.filter(j => j.area === activeFilters.area);
+  return jobs;
+}
+
+function setFilter(key, val) {
+  activeFilters[key] = val;
+  swipeState = { index:0, liked:[], history:[] };
+  renderStudentDash('explorar');
+}
+
+function initSwipe() {
+  const jobs = getFilteredJobs();
+  swipeState._jobs = jobs;
+  renderSwipeCard();
+}
+
+function renderSwipeCard() {
+  const stack = document.getElementById('swipe-stack');
+  if (!stack) return;
+  stack.innerHTML = '';
+  const jobs = swipeState._jobs || [];
+  const idx = swipeState.index;
+
+  if (idx >= jobs.length) {
+    stack.innerHTML = `
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px">
+        <i data-lucide="check-circle" style="width:40px;height:40px;color:var(--purple-light);margin-bottom:12px"></i>
+        <h3 style="margin-bottom:8px">¡Viste todo!</h3>
+        <p style="color:var(--muted);font-size:0.88rem;margin-bottom:16px">Revisaste todas las pasantías disponibles</p>
+        <button class="btn btn-primary btn-sm" onclick="swipeState.index=0;renderSwipeCard()">Ver de nuevo</button>
+      </div>`;
+    document.getElementById('ai-panel').innerHTML = '';
+    document.getElementById('cards-counter').textContent = '';
+    icons(); return;
+  }
+
+  // Shadow card
+  if (idx + 1 < jobs.length) {
+    const shadow = document.createElement('div');
+    shadow.className = 'swipe-card';
+    shadow.style.cssText = 'transform:scale(0.95) translateY(12px);z-index:1;pointer-events:none';
+    shadow.innerHTML = buildCardHTML(jobs[idx+1]);
+    stack.appendChild(shadow);
+  }
+
+  const job = jobs[idx];
+  const card = document.createElement('div');
+  card.className = 'swipe-card animate-enter';
+  card.id = 'active-card';
+  card.innerHTML = `
+    <div class="like-indicator" id="li-like">QUIERO</div>
+    <div class="nope-indicator" id="li-nope">PASO</div>
+    ${buildCardHTML(job)}`;
+  addDrag(card);
+  stack.appendChild(card);
+
+  document.getElementById('cards-counter').textContent = `${jobs.length - idx} de ${jobs.length}`;
+  renderAIPanel(job);
+  icons();
+}
+
+function buildCardHTML(job) {
+  return `
+    <div class="card-cover">
+      <div class="card-cover-bg" style="background:${job.cover||'linear-gradient(135deg,#7c3aed,#ec4899)'}"></div>
+      <div class="card-cover-overlay"></div>
+      <div class="company-logo">${job.companyLogo ? `<img src="${job.companyLogo}"/>` : job.company.charAt(0)}</div>
+    </div>
+    <div class="card-body">
+      <h3>${job.role}</h3>
+      <div class="sub">${job.company}</div>
+      <div class="card-tags">${(job.skills||[]).slice(0,3).map(s=>`<span class="card-tag">${s}</span>`).join('')}<span class="card-tag" style="background:var(--green-dim);border-color:rgba(16,185,129,0.25);color:#34d399">Remunerada</span></div>
+      <div class="card-info-row"><i data-lucide="map-pin"></i>${job.location||job.modality}</div>
+      <div class="card-info-row"><i data-lucide="clock"></i>${job.duration}</div>
+      <div class="card-info-row"><i data-lucide="banknote"></i>${job.salary}/mes</div>
+      <div class="compat-bar">
+        <div class="compat-label"><span>Compatibilidad IA</span><strong>${calcCompat(job)}%</strong></div>
+        <div class="compat-track"><div class="compat-fill" style="width:${calcCompat(job)}%"></div></div>
+      </div>
+    </div>`;
+}
+
+function calcCompat(job) {
+  if (!currentUser || !currentUser.skills) return 68;
+  const mine = (currentUser.skills||[]).map(s => s.toLowerCase());
+  const theirs = (job.skills||[]).map(s => s.toLowerCase());
+  const matched = theirs.filter(s => mine.some(m => m.includes(s) || s.includes(m)));
+  const pct = theirs.length ? matched.length / theirs.length : 0.5;
+  // 70% peso skills, 20% bonus por tener perfil completo, 10% UCH
+  const skillScore = Math.round(pct * 70);
+  const profileBonus = mine.length >= 4 ? 20 : mine.length >= 2 ? 12 : 5;
+  const uniBonus = (currentUser.university||'').toUpperCase().includes('UCH') ? 8 : 0;
+  return Math.max(42, Math.min(98, skillScore + profileBonus + uniBonus));
+}
+
+function calcCompatForCompany(candidate) {
+  // Calcula qué tan bien el candidato matchea con las ofertas activas de la empresa
+  const myJobs = (DB.get('jobs')||[]).filter(j => j.companyId === currentUser.id && j.status === 'approved');
+  if (!myJobs.length) {
+    // Sin oferta activa: calcular vs SEED_JOBS genérico
+    const allJobs = DB.get('jobs')||[];
+    myJobs.push(...allJobs.filter(j => j.status === 'approved').slice(0,1));
+  }
+  if (!myJobs.length) return 72;
+  let best = 0;
+  for (const job of myJobs) {
+    const theirs = (job.skills||[]).map(s => s.toLowerCase());
+    const mine = (candidate.skills||[]).map(s => s.toLowerCase());
+    const matched = theirs.filter(s => mine.some(m => m.includes(s) || s.includes(m)));
+    const pct = theirs.length ? matched.length / theirs.length : 0.5;
+    const score = Math.round(pct * 75 + 18);
+    if (score > best) best = score;
+  }
+  return Math.max(42, Math.min(98, best));
+}
+
+function aiLabel(score) {
+  if (score >= 85) return { text:'Muy recomendado', color:'var(--green)' };
+  if (score >= 70) return { text:'Buen match', color:'var(--purple-light)' };
+  if (score >= 55) return { text:'Match parcial', color:'var(--yellow)' };
+  return { text:'Match bajo', color:'var(--muted)' };
+}
+
+function renderAIPanel(job) {
+  const panel = document.getElementById('ai-panel');
+  if (!panel) return;
+  const mine = (currentUser.skills||[]).map(s=>s.toLowerCase());
+  const theirs = job.skills||[];
+  const matched = theirs.filter(s => mine.some(m=>m.toLowerCase().includes(s.toLowerCase())||s.toLowerCase().includes(m.toLowerCase())));
+  const missing = theirs.filter(s => !matched.includes(s));
+
+  panel.innerHTML = `
+    <div class="card" style="margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;font-weight:700;font-size:0.9rem">
+        <i data-lucide="zap" style="color:var(--purple-light)"></i> Análisis de IA
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Habilidades que matchean</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px">
+        ${matched.length ? matched.map(s=>`<span class="card-tag match"><i data-lucide="check" style="width:10px;height:10px"></i>${s}</span>`).join('') : '<span style="color:var(--muted);font-size:0.8rem">Agregá habilidades a tu perfil</span>'}
+      </div>
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Te puede faltar</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px">
+        ${missing.length ? missing.map(s=>`<span class="card-tag no-match">${s}</span>`).join('') : '<span style="color:var(--green);font-size:0.8rem">¡Tenés todo!</span>'}
+      </div>
+    </div>
+    <div class="card card-sm">
+      <div style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Detalles</div>
+      <div class="card-info-row" style="margin-bottom:8px"><i data-lucide="briefcase"></i><span style="font-size:0.85rem">${job.area}</span></div>
+      <div class="card-info-row" style="margin-bottom:8px"><i data-lucide="map-pin"></i><span style="font-size:0.85rem">${job.modality}</span></div>
+      <div class="card-info-row"><i data-lucide="clock"></i><span style="font-size:0.85rem">${job.duration}</span></div>
+    </div>`;
+  icons();
+}
+
+function addDrag(card) {
+  let sx, sy, dragging = false;
+  const start = (x,y) => { sx=x; sy=y; dragging=true; };
+  const move = (x,y) => {
+    if(!dragging) return;
+    const dx=x-sx, dy=y-sy, rot=dx*0.07;
+    card.style.transform=`translate(${dx}px,${dy}px) rotate(${rot}deg)`;
+    const li=document.getElementById('li-like'), ln=document.getElementById('li-nope');
+    if(li) li.style.opacity=Math.max(0,dx/70);
+    if(ln) ln.style.opacity=Math.max(0,-dx/70);
+  };
+  const end = (x) => {
+    if(!dragging) return; dragging=false;
+    const dx=x-sx;
+    card.style.transform='';
+    const li=document.getElementById('li-like'), ln=document.getElementById('li-nope');
+    if(li) li.style.opacity=0; if(ln) ln.style.opacity=0;
+    if(dx>75) doSwipe('like'); else if(dx<-75) doSwipe('nope');
+  };
+  card.addEventListener('mousedown',e=>start(e.clientX,e.clientY));
+  window.addEventListener('mousemove',e=>{if(dragging)move(e.clientX,e.clientY)});
+  window.addEventListener('mouseup',e=>end(e.clientX));
+  card.addEventListener('touchstart',e=>start(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+  card.addEventListener('touchmove',e=>move(e.touches[0].clientX,e.touches[0].clientY),{passive:true});
+  card.addEventListener('touchend',e=>end(e.changedTouches[0].clientX));
+}
+
+function doSwipe(dir) {
+  const jobs = swipeState._jobs || [];
+  if (swipeState.index >= jobs.length) return;
+  const job = jobs[swipeState.index];
+  const card = document.getElementById('active-card');
+  if(!card) return;
+  swipeState.history.push({job, dir});
+  if(dir==='like') {
+    swipeState.liked.push(job);
+    card.classList.add('animate-right');
+    toast('Te interesa: '+job.role);
+    // Simulate auto-match on 2nd like
+    if(swipeState.liked.length===2) setTimeout(()=>triggerMatch(job),500);
+  } else {
+    card.classList.add('animate-left');
+  }
+  setTimeout(()=>{ swipeState.index++; renderSwipeCard(); },360);
+}
+
+function undoSwipe() {
+  if(!swipeState.history.length){toast('Nada para deshacer');return;}
+  const {job,dir}=swipeState.history.pop();
+  if(dir==='like') swipeState.liked=swipeState.liked.filter(j=>j.id!==job.id);
+  swipeState.index--;
+  renderSwipeCard();
+  toast('Deshecho');
+}
+
+function triggerMatch(job) {
+  const overlay = document.getElementById('match-overlay');
+  // Desde el alumno: es una aplicación, no un match mutuo todavía
+  document.querySelector('#match-overlay .match-title').textContent = '¡Aplicaste!';
+  document.querySelector('#match-overlay .match-title').className = 'match-title';
+  document.querySelector('#match-overlay .pop').textContent = '🚀';
+  document.getElementById('match-text').textContent = `Le diste like a "${job.role}" en ${job.company}. Si les interesás, te van a contactar.`;
+  document.getElementById('match-btn-primary').textContent = 'Ver mis aplicaciones';
+  document.getElementById('match-avatars').innerHTML = `
+    <div style="text-align:center">
+      ${currentUser.photo?`<img src="${currentUser.photo}" class="avatar avatar-lg" style="border-radius:50%;object-fit:cover"/>`:`<div class="avatar avatar-lg">${currentUser.name.charAt(0)}</div>`}
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:6px">${currentUser.name.split(' ')[0]}</div>
+    </div>
+    <div style="font-size:2rem;color:var(--purple-light)">💜</div>
+    <div style="text-align:center">
+      <div class="avatar avatar-lg" style="background:var(--pink);color:white;font-size:1.5rem;font-weight:700;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">${job.company.charAt(0)}</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:6px">${job.company}</div>
+    </div>`;
+  document.getElementById('match-detail-box').innerHTML = `
+    <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600">Detalles</div>
+    <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="briefcase"></i>${job.role}</div>
+    <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="clock"></i>${job.duration}</div>
+    <div class="card-info-row"><i data-lucide="zap" style="color:var(--purple-light)"></i>Compatibilidad IA: <strong style="color:var(--purple-light);margin-left:4px">${calcCompat(job)}%</strong></div>`;
+
+  // Save match
+  const match = { id:'m'+Date.now(), studentId:currentUser.id, studentName:currentUser.name, companyId:job.companyId, company:job.company, role:job.role, jobId:job.id, duration:job.duration, step:1, createdAt:new Date().toLocaleString('es-AR') };
+  DB.push('matches', match);
+  addNotif(currentUser.id, `¡Match con ${job.company}! Revisá "Mis matches" para ver los datos de contacto.`, 'heart');
+
+  // Mostrar contacto de la empresa
+  const companyUser = (DB.get('users')||[]).find(u => u.id === job.companyId);
+  const contactEmail = companyUser?.email || `rrhh@${job.company.toLowerCase().replace(/\s/g,'')}.com`;
+  const contactName = companyUser?.contact || 'Recursos Humanos';
+  document.getElementById('match-contact-box').innerHTML = `
+    <div style="background:var(--surface2);border:1px solid rgba(124,58,237,0.25);border-radius:var(--radius-sm);padding:14px;text-align:left">
+      <div style="font-size:0.72rem;color:var(--purple-light);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">📬 Próximo paso</div>
+      <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="user"></i><span style="font-size:0.85rem">${contactName} · ${job.company}</span></div>
+      <div class="card-info-row"><i data-lucide="mail"></i><span style="font-size:0.85rem">${contactEmail}</span></div>
+      <p style="color:var(--muted);font-size:0.78rem;margin-top:8px">La empresa se comunicará con vos para coordinar la entrevista.</p>
+    </div>`;
+
+  overlay.classList.remove('hidden');
+  icons();
+}
+
+function closeMatch() {
+  document.getElementById('match-overlay').classList.add('hidden');
+  if (currentUser && currentUser.role === 'empresa') renderCompanyDash('candidatos');
+  else renderStudentDash('matches');
+}
+
+// ── MATCHES ──
+function renderStudentMatches() {
+  const matches = (DB.get('matches')||[]).filter(m=>m.studentId===currentUser.id);
+  const steps = ['Explorar','Match','Contrato','En curso','Certificado'];
+  const stepIcons = ['search','heart','file-text','briefcase','award'];
+  return `
+    <div class="page-header">
+      <h1>Mis matches</h1>
+      <p>Pasantías donde hubo match mutuo</p>
+    </div>
+    ${!matches.length ? `
+      <div class="card" style="text-align:center;padding:40px">
+        <i data-lucide="heart" style="width:36px;height:36px;color:var(--muted);margin-bottom:12px"></i>
+        <h3 style="margin-bottom:8px">Sin matches todavía</h3>
+        <p style="color:var(--muted)">Explorá pasantías y dales like para hacer matches</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="renderStudentDash('explorar')">Explorar ahora</button>
+      </div>` :
+    matches.map(m=>`
+      <div class="match-item fade-up">
+        <div class="flex justify-between items-center" style="margin-bottom:14px">
+          <div>
+            <div style="font-weight:700;font-size:1rem">${m.role}</div>
+            <div style="color:var(--muted);font-size:0.85rem">${m.company} · ${m.duration}</div>
+          </div>
+          <span class="badge ${m.step>=4?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
+            ${m.step>=4?'En curso':m.step>=2?'Con contrato':'Match reciente'}
+          </span>
+        </div>
+        <div class="tracker">
+          ${steps.map((s,i)=>`
+            <div class="tracker-step ${i<m.step?'done':i===m.step?'active':'pending'}">
+              <div class="tracker-dot ${i<m.step?'done':i===m.step?'active':'pending'}">
+                <i data-lucide="${i<m.step?'check':stepIcons[i]}"></i>
+              </div>
+              <div class="tracker-label">${s}</div>
+            </div>`).join('')}
+        </div>
+        <div style="color:var(--muted);font-size:0.78rem;margin-top:10px">Match el ${m.createdAt}</div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn btn-ghost btn-sm" onclick="showMatchDetail('${m.id}')">
+            <i data-lucide="info"></i> Ver contacto
+          </button>
+          ${m.step >= 4 ? `<span class="badge badge-green"><i data-lucide="check-circle"></i> Pasantía en curso</span>` : ''}
+        </div>
+      </div>`).join('')}`;
+}
+
+function showMatchDetail(matchId) {
+  const m = (DB.get('matches')||[]).find(x => x.id === matchId);
+  if (!m) return;
+  const companyUser = (DB.get('users')||[]).find(u => u.id === m.companyId);
+  const contactEmail = companyUser?.email || `rrhh@${m.company.toLowerCase().replace(/\s/g,'')}.com`;
+  const contactName = companyUser?.contact || 'Recursos Humanos';
+  const modal = document.createElement('div');
+  modal.className = 'match-overlay';
+  modal.onclick = e => { if (e.target === modal) modal.remove(); };
+  modal.innerHTML = `
+    <div class="match-box fade-up" style="max-width:400px;text-align:left;padding:28px">
+      <div class="flex justify-between items-center" style="margin-bottom:20px">
+        <h2 style="font-size:1.1rem;font-weight:800">Próximos pasos</h2>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="this.closest('.match-overlay').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <div style="font-weight:700;margin-bottom:4px">${m.role}</div>
+      <div style="color:var(--muted);font-size:0.85rem;margin-bottom:20px">${m.company} · ${m.duration}</div>
+      <div style="background:var(--surface2);border:1px solid rgba(124,58,237,0.25);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px">
+        <div style="font-size:0.72rem;color:var(--purple-light);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">📬 Contacto de la empresa</div>
+        <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="user"></i><span>${contactName} · ${m.company}</span></div>
+        <div class="card-info-row"><i data-lucide="mail"></i><span>${contactEmail}</span></div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:0.85rem;color:var(--muted2)">
+        <strong style="color:var(--text);display:block;margin-bottom:6px">¿Qué sigue?</strong>
+        ${m.step === 1 ? '1. La empresa te contactará para coordinar una entrevista.<br>2. Si avanzás, firmarás el convenio con la facultad.<br>3. Empezás la pasantía y al terminar recibís tu certificado blockchain.' :
+          m.step === 2 ? 'Estás en proceso de firma de contrato. La facultad revisará el convenio.' :
+          m.step === 3 ? '¡Contrato firmado! Estás a punto de comenzar la pasantía.' :
+          '¡Pasantía en curso! Al terminar, la facultad emitirá tu certificado blockchain.'}
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  icons();
+}
+
+function advanceMatchStep(matchId) {
+  let matches = DB.get('matches') || [];
+  matches = matches.map(m => m.id === matchId ? { ...m, step: Math.min(m.step + 1, 4) } : m);
+  DB.set('matches', matches);
+  const m = matches.find(x => x.id === matchId);
+  const stepNames = ['','Match','Contrato firmado','Seleccionado','En curso'];
+  toast(`Etapa actualizada: ${stepNames[m.step] || 'Completado'}`);
+  renderStudentDash('matches');
+}
+
+// ── CERTIFICADOS ──
+function renderCertificados() {
+  const certs = DB.get('certificates')||[];
+  const mine = certs.filter(c=>c.studentId===currentUser.id||c.studentId==='demo-alumno');
+  return `
+    <div class="page-header">
+      <h1>Mis certificados</h1>
+      <p>Credenciales verificables emitidas en blockchain</p>
+    </div>
+    ${!mine.length ? `
+      <div class="card" style="text-align:center;padding:40px">
+        <i data-lucide="award" style="width:36px;height:36px;color:var(--muted);margin-bottom:12px"></i>
+        <p style="color:var(--muted)">Completá una pasantía para recibir tu primer certificado blockchain</p>
+      </div>` :
+    mine.map(c=>`
+      <div class="cert-card fade-up" style="margin-bottom:16px">
+        <div class="flex justify-between items-center" style="margin-bottom:16px">
+          <div>
+            <div style="font-weight:700;font-size:1.05rem">${c.role}</div>
+            <div style="color:var(--muted);font-size:0.85rem">${c.company} · ${c.duration}</div>
+          </div>
+          <span class="badge badge-green"><i data-lucide="check-circle"></i> Verificado</span>
+        </div>
+        <div class="flex gap-4" style="flex-wrap:wrap">
+          <div style="flex:1;min-width:180px">
+            <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px">Datos del certificado</div>
+            <div class="card-info-row" style="margin-bottom:5px"><i data-lucide="calendar"></i><span style="font-size:0.82rem">Emitido: ${c.issuedAt}</span></div>
+            <div class="card-info-row" style="margin-bottom:5px"><i data-lucide="star"></i><span style="font-size:0.82rem">Evaluación: ${c.evaluation||'Muy bueno'}</span></div>
+            <div class="card-info-row"><i data-lucide="link"></i><span style="font-size:0.82rem">${c.network||'Polygon Amoy'}</span></div>
+            <div class="cert-hash">${c.txHash}</div>
+            <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Bloque #${c.block||'14823901'}</div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+            ${buildQR()}
+            <div style="font-size:0.72rem;color:var(--muted)">Escaneá para verificar</div>
+            <button class="btn btn-ghost btn-sm" onclick="copyHash('${c.txHash}')">
+              <i data-lucide="copy"></i> Copiar hash
+            </button>
+          </div>
+        </div>
+      </div>`).join('')}`;
+}
+
+function buildQR() {
+  const s=6, n=15;
+  const cells = Array.from({length:n*n},(_,i)=>Math.random()>0.5?1:0);
+  // Fixed corner squares
+  for(let r=0;r<3;r++) for(let c=0;c<3;c++) { cells[r*n+c]=1; cells[r*n+(n-1-c)]=1; cells[(n-1-r)*n+c]=1; }
+  return `<div class="qr-placeholder"><svg width="68" height="68" viewBox="0 0 ${n*s} ${n*s}" xmlns="http://www.w3.org/2000/svg">
+    ${cells.map((v,i)=>v?`<rect x="${(i%n)*s}" y="${Math.floor(i/n)*s}" width="${s-1}" height="${s-1}" fill="#0f172a"/>`:''  ).join('')}
+  </svg></div>`;
+}
+
+function copyHash(hash) {
+  navigator.clipboard.writeText(hash).then(()=>toast('Hash copiado al portapapeles'));
+}
+
+// ── PERFIL ──
+function renderPerfil() {
+  return `
+    <div class="page-header">
+      <h1>Mi perfil</h1>
+      <p>Así te ven las empresas cuando das like</p>
+    </div>
+    <div class="card" style="max-width:500px">
+      <div class="flex gap-4 items-center" style="margin-bottom:24px">
+        ${avatarHTML(currentUser,'xl')}
+        <div>
+          <div style="font-size:1.2rem;font-weight:800">${currentUser.name}</div>
+          <div style="color:var(--muted);font-size:0.85rem;margin-top:2px">${currentUser.career||''}</div>
+          <div style="color:var(--muted);font-size:0.85rem">${currentUser.university||''}</div>
+          <label class="btn btn-ghost btn-sm" style="margin-top:8px;cursor:pointer">
+            <i data-lucide="camera"></i> Cambiar foto
+            <input type="file" accept="image/*" onchange="updatePhoto(this)" style="display:none"/>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bio</label>
+        <textarea class="form-input" id="p-bio" style="min-height:70px">${currentUser.bio||''}</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Habilidades</label>
+        <div class="tags-input-wrap" id="skills-wrap">
+          ${(currentUser.skills||[]).map(s=>`<span class="tag-item">${s}<button onclick="removeProfileSkill('${s}')">×</button></span>`).join('')}
+          <input placeholder="Agregar habilidad..." onkeydown="addProfileSkill(event)" id="skill-input"/>
+        </div>
+      </div>
+      <button class="btn btn-primary w-full" onclick="saveProfile()">
+        <i data-lucide="save"></i> Guardar cambios
+      </button>
+    </div>`;
+}
+
+function updatePhoto(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    currentUser.photo = e.target.result;
+    updateCurrentUser();
+    renderStudentDash('perfil');
+    toast('Foto actualizada');
+  };
+  reader.readAsDataURL(file);
+}
+
+function addProfileSkill(e) {
+  if(e.key!=='Enter') return; e.preventDefault();
+  const val=e.target.value.trim(); if(!val) return;
+  if(!(currentUser.skills||[]).includes(val)) {
+    currentUser.skills = [...(currentUser.skills||[]), val];
+    updateCurrentUser();
+    renderStudentDash('perfil');
+  }
+  e.target.value='';
+}
+
+function removeProfileSkill(s) {
+  currentUser.skills=(currentUser.skills||[]).filter(x=>x!==s);
+  updateCurrentUser();
+  renderStudentDash('perfil');
+}
+
+function saveProfile() {
+  currentUser.bio = document.getElementById('p-bio')?.value;
+  updateCurrentUser();
+  toast('Perfil guardado');
+}
+
+function updateCurrentUser() {
+  DB.set('currentUser', currentUser);
+  let users = DB.get('users')||[];
+  users = users.map(u=>u.id===currentUser.id?currentUser:u);
+  DB.set('users', users);
+}
+
+// ════════════════════════════════════════
+//  COMPANY DASHBOARD
+// ════════════════════════════════════════
+function renderCompanyDash(tab) {
+  currentTab = tab;
+  const myJobs = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id);
+  const allMatches = DB.get('matches')||[];
+  const myMatches = allMatches.filter(m=>m.companyId===currentUser.id);
+
+  document.getElementById('sidebar-company').innerHTML = `
+    <div class="sidebar-user">
+      ${avatarHTML(currentUser,'sm')}
+      <div class="sidebar-user-info">
+        <div class="name">${currentUser.name}</div>
+        <div class="role">${currentUser.sector||'Empresa'}</div>
+      </div>
+    </div>
+    <div class="sidebar-label">Principal</div>
+    ${sidebarItem('publicar','plus-circle','Publicar pasantía',tab,'empresa')}
+    ${sidebarItem('pasantias','list','Mis pasantías',tab,'empresa', myJobs.length)}
+    ${sidebarItem('candidatos','users','Candidatos',tab,'empresa')}
+    ${sidebarItem('matches','heart','Mis matches',tab,'empresa', myMatches.length)}
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-item" onclick="logout()" title="Cerrar sesión"><i data-lucide="log-out"></i><span class="sidebar-text"> Cerrar sesión</span></div>`;
+
+  const content = document.getElementById('content-company');
+  if (tab === 'publicar') content.innerHTML = renderPublicar();
+  else if (tab === 'pasantias') content.innerHTML = renderMisPasantias();
+  else if (tab === 'candidatos') content.innerHTML = renderCandidatos();
+  else if (tab === 'matches') content.innerHTML = renderCompanyMatches();
+  icons();
+}
+
+function renderCompanyMatches() {
+  const myMatches = (DB.get('matches')||[]).filter(m => m.companyId === currentUser.id);
+  const steps = ['Match','Entrevista','Contrato','En curso','Completado'];
+  return `
+    <div class="page-header">
+      <h1>Mis matches</h1>
+      <p>Candidatos que vos y ellos se eligieron mutuamente</p>
+    </div>
+    ${!myMatches.length ? `
+      <div class="card" style="text-align:center;padding:40px">
+        <i data-lucide="heart" style="width:36px;height:36px;color:var(--muted);margin-bottom:12px"></i>
+        <h3 style="margin-bottom:8px">Sin matches todavía</h3>
+        <p style="color:var(--muted)">Explorá candidatos y dales like para hacer match</p>
+        <button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="renderCompanyDash('candidatos')">Ver candidatos</button>
+      </div>` :
+    myMatches.map(m => {
+      const students = DB.get('users') || [];
+      const st = students.find(u => u.id === m.studentId);
+      const email = st?.email || `${m.studentName.toLowerCase().replace(/\s/g,'.')}@uch.edu.ar`;
+      const skills = st?.skills || [];
+      return `
+      <div class="match-item fade-up" style="margin-bottom:14px">
+        <div class="flex justify-between items-center" style="margin-bottom:14px">
+          <div class="flex gap-3 items-center">
+            <div style="width:44px;height:44px;border-radius:50%;background:${avatarBg(m.studentName)};display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:1.1rem;flex-shrink:0">${m.studentName.charAt(0)}</div>
+            <div>
+              <div style="font-weight:700">${m.studentName}</div>
+              <div style="color:var(--muted);font-size:0.82rem">Lic. en Sistemas · UCH · 4to año</div>
+            </div>
+          </div>
+          <span class="badge ${m.step>=3?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
+            ${steps[m.step-1]||'Match'}
+          </span>
+        </div>
+        ${skills.length ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>` : ''}
+        <div style="background:var(--surface2);border:1px solid rgba(124,58,237,0.2);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px">
+          <div style="font-size:0.72rem;color:var(--purple-light);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:8px">📬 Contacto</div>
+          <div class="card-info-row" style="margin-bottom:4px"><i data-lucide="briefcase"></i><span style="font-size:0.85rem">${m.role} · ${m.duration}</span></div>
+          <div class="card-info-row"><i data-lucide="mail"></i>
+            <a href="mailto:${email}" style="color:var(--purple-light);font-size:0.85rem;text-decoration:none">${email}</a>
+          </div>
+        </div>
+        <div class="tracker" style="margin-bottom:10px">
+          ${steps.slice(0,4).map((s,i)=>`
+            <div class="tracker-step ${i<m.step-1?'done':i===m.step-1?'active':'pending'}">
+              <div class="tracker-dot ${i<m.step-1?'done':i===m.step-1?'active':'pending'}">
+                <i data-lucide="${i<m.step-1?'check':['heart','calendar','file-text','briefcase'][i]}"></i>
+              </div>
+              <div class="tracker-label">${s}</div>
+            </div>`).join('')}
+        </div>
+        ${m.step < 4 ? `<button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
+          <i data-lucide="chevrons-right"></i> Avanzar etapa
+        </button>` : m.certRequested ? `
+        <div style="background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:14px">
+          <div class="flex gap-2 items-center" style="margin-bottom:6px">
+            <i data-lucide="check-circle" style="color:var(--green)"></i>
+            <span style="font-weight:700;color:var(--green);font-size:0.9rem">Solicitud enviada a la facultad</span>
+          </div>
+          <p style="color:var(--muted);font-size:0.82rem;margin:0">La facultad emitirá el certificado blockchain de ${m.studentName}. El alumno lo recibirá en su panel de certificados.</p>
+        </div>` : `
+        <div style="background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div class="flex gap-2 items-center">
+            <i data-lucide="award" style="color:var(--green)"></i>
+            <span style="font-size:0.85rem;font-weight:600;color:var(--green)">Pasantía completada</span>
+          </div>
+          <button class="btn btn-success btn-sm" onclick="notifyFacultadCert('${m.id}')">
+            <i data-lucide="send"></i> Solicitar certificado a facultad
+          </button>
+        </div>`}
+      </div>`; }).join('')}`;
+}
+
+function notifyFacultadCert(matchId) {
+  const m = (DB.get('matches')||[]).find(x => x.id === matchId);
+  if (!m) return;
+  // Marcar el match como "solicitado" para que facultad lo vea destacado
+  let matches = DB.get('matches') || [];
+  matches = matches.map(x => x.id === matchId ? { ...x, certRequested: true } : x);
+  DB.set('matches', matches);
+  // Notificar al alumno también
+  addNotif(m.studentId, `${currentUser.name} solicitó tu certificado blockchain a la facultad.`, 'award');
+  toast('✓ Solicitud enviada a la facultad — emitirán el certificado SBT en Polygon');
+  renderCompanyDash('matches');
+}
+
+function advanceCompanyMatchStep(matchId) {
+  let matches = DB.get('matches') || [];
+  const m = matches.find(x => x.id === matchId);
+  if (!m) return;
+  const newStep = Math.min(m.step + 1, 4);
+  matches = matches.map(x => x.id === matchId ? { ...x, step: newStep } : x);
+  DB.set('matches', matches);
+  const stepNames = ['','Match','Entrevista agendada','Contrato firmado','En curso'];
+  addNotif(m.studentId, `Tu proceso con ${currentUser.name} avanzó: ${stepNames[newStep]}`, 'briefcase');
+  toast(`Etapa actualizada: ${stepNames[newStep]}`);
+  renderCompanyDash('matches');
+}
+
+function renderPublicar() {
+  jobSkills = [];
+  return `
+    <div class="page-header">
+      <h1>Publicar pasantía</h1>
+      <p>Completá el formulario para encontrar el candidato ideal</p>
+    </div>
+    <div class="card" style="max-width:560px">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Rol / Puesto</label>
+          <input class="form-input" id="j-role" placeholder="Ej: Desarrollador Backend Jr."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Área</label>
+          <select class="form-input" id="j-area">
+            <option>Tecnología</option><option>Datos</option><option>Diseño</option>
+            <option>Marketing</option><option>Finanzas</option><option>Infraestructura</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Duración</label>
+          <select class="form-input" id="j-duration">
+            <option>3 meses</option><option>4 meses</option><option>5 meses</option><option>6 meses</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modalidad</label>
+          <select class="form-input" id="j-modality">
+            <option>Híbrido</option><option>Presencial</option><option>Remoto</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Remuneración</label>
+          <input class="form-input" id="j-salary" placeholder="Ej: $120.000"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ubicación</label>
+          <input class="form-input" id="j-location" placeholder="Ej: CABA"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción de tareas</label>
+        <textarea class="form-input" id="j-desc" placeholder="¿Qué va a hacer el pasante?"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Habilidades requeridas (Enter para agregar)</label>
+        <div class="tags-input-wrap" id="job-skills-wrap">
+          <input placeholder="Node.js, Python, SQL..." onkeydown="addSkill(event,'job')" id="job-skill-input"/>
+        </div>
+      </div>
+      <button class="btn btn-primary w-full" onclick="submitJob()">
+        <i data-lucide="send"></i> Enviar para aprobación
+      </button>
+    </div>`;
+}
+
+function submitJob() {
+  const role = document.getElementById('j-role').value.trim();
+  if(!role){toast('Completá el puesto');return;}
+  const job = {
+    id:'j'+Date.now(), companyId:currentUser.id, company:currentUser.name,
+    role, area:document.getElementById('j-area').value,
+    duration:document.getElementById('j-duration').value,
+    modality:document.getElementById('j-modality').value,
+    salary:document.getElementById('j-salary').value||'A convenir',
+    location:document.getElementById('j-location').value,
+    description:document.getElementById('j-desc').value,
+    skills:[...jobSkills], status:'pending',
+    cover:'linear-gradient(135deg,#7c3aed,#ec4899)', applicants:0
+  };
+  DB.push('jobs', job);
+  jobSkills=[];
+  toast('Pasantía enviada a la facultad para aprobación');
+  renderCompanyDash('pasantias');
+}
+
+function renderMisPasantias() {
+  const jobs = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id);
+  return `
+    <div class="page-header">
+      <h1>Mis pasantías</h1>
+      <p>Estado de todas tus publicaciones</p>
+    </div>
+    ${!jobs.length?`<div class="card" style="text-align:center;padding:40px"><i data-lucide="briefcase" style="width:36px;height:36px;color:var(--muted);margin-bottom:12px"></i><p style="color:var(--muted)">No publicaste ninguna pasantía todavía</p><button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="renderCompanyDash('publicar')">Publicar ahora</button></div>`
+    :jobs.map(j=>`
+      <div class="match-item fade-up">
+        <div class="flex justify-between items-center">
+          <div>
+            <div style="font-weight:700">${j.role}</div>
+            <div style="color:var(--muted);font-size:0.82rem">${j.area} · ${j.duration} · ${j.modality}</div>
+          </div>
+          <span class="badge ${j.status==='approved'?'badge-green':j.status==='rejected'?'badge-red':'badge-yellow'}">
+            ${j.status==='approved'?'Aprobada':j.status==='rejected'?'Rechazada':'Pendiente'}
+          </span>
+        </div>
+        ${j.skills?.length?`<div class="card-tags" style="margin-top:10px">${j.skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>`:''}
+      </div>`).join('')}`;
+}
+
+function renderCandidatos() {
+  const candidates = DB.get('candidates')||SEED_CANDS;
+  const myMatches = (DB.get('matches')||[]).filter(m=>m.companyId===currentUser.id);
+  const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
+  const matchedIds = myMatches.map(m=>m.studentId);
+  return `
+    <div class="page-header">
+      <h1>Candidatos</h1>
+      <p>Alumnos compatibles con tus búsquedas activas — hacé click para ver el perfil completo</p>
+    </div>
+    ${myMatches.length ? `<div class="card" style="margin-bottom:20px;border-color:rgba(124,58,237,0.3);display:flex;align-items:center;justify-content:space-between;padding:14px 16px">
+      <div class="flex items-center gap-3"><i data-lucide="heart" style="color:var(--purple-light)"></i><span style="font-weight:700">${myMatches.length} match${myMatches.length>1?'es':''} activo${myMatches.length>1?'s':''}</span></div>
+      <button class="btn btn-primary btn-sm" onclick="renderCompanyDash('matches')">Ver matches <i data-lucide="chevron-right"></i></button>
+    </div>` : ''}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px">
+      ${candidates.map(c=>{
+        const matched = matchedIds.includes(c.id);
+        const liked = likedIds.includes(c.id);
+        const score = calcCompatForCompany(c);
+        const lbl = aiLabel(score);
+        return `
+        <div class="card" style="cursor:pointer;${matched?'border-color:rgba(16,185,129,0.35)':liked?'border-color:rgba(124,58,237,0.35)':''}" onclick="viewCandidate('${c.id}')">
+          <div style="width:48px;height:48px;border-radius:50%;background:${c.cover};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.2rem;color:white;margin-bottom:10px">${c.name.charAt(0)}</div>
+          <div style="font-weight:700;font-size:0.9rem">${c.name}</div>
+          <div style="color:var(--muted);font-size:0.78rem;margin-bottom:8px">${c.career}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">${c.skills.slice(0,2).map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>
+          <div class="compat-bar" style="margin-top:10px">
+            <div class="compat-label"><span style="color:${lbl.color}">${lbl.text}</span><strong>${score}%</strong></div>
+            <div class="compat-track"><div class="compat-fill" style="width:${score}%"></div></div>
+          </div>
+          <div class="flex gap-2" style="margin-top:12px" onclick="event.stopPropagation()">
+            ${matched
+              ? `<div class="btn btn-success btn-sm w-full" style="justify-content:center;pointer-events:none;font-size:0.75rem"><i data-lucide="heart"></i> Match!</div>`
+              : liked
+                ? `<div class="btn btn-ghost btn-sm w-full" style="justify-content:center;pointer-events:none;color:var(--purple-light);font-size:0.75rem"><i data-lucide="check"></i> Like enviado</div>`
+                : `<button class="btn btn-danger btn-sm" style="flex:1" onclick="passCandidate('${c.id}')"><i data-lucide="x"></i></button>
+                   <button class="btn btn-primary btn-sm" style="flex:1" onclick="likeCandidate('${c.id}')"><i data-lucide="heart"></i> Like</button>`
+            }
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function viewCandidate(id) {
+  const candidates = DB.get('candidates') || SEED_CANDS;
+  const c = candidates.find(x => x.id === id);
+  if (!c) return;
+  const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
+  const alreadyLiked = likedIds.includes(c.id);
+  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
+
+  const modal = document.createElement('div');
+  modal.id = 'candidate-modal';
+  modal.className = 'match-overlay';
+  modal.onclick = e => { if(e.target===modal) modal.remove(); };
+  modal.innerHTML = `
+    <div class="match-box fade-up" style="max-width:440px;text-align:left;padding:28px">
+      <div class="flex justify-between items-center" style="margin-bottom:20px">
+        <h2 style="font-size:1.15rem;font-weight:800">Perfil del candidato</h2>
+        <button class="btn btn-ghost btn-sm btn-icon" onclick="document.getElementById('candidate-modal').remove()"><i data-lucide="x"></i></button>
+      </div>
+      <div class="flex gap-4 items-center" style="margin-bottom:18px">
+        <div style="width:64px;height:64px;border-radius:50%;background:${c.cover};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;color:white;flex-shrink:0">${c.name.charAt(0)}</div>
+        <div>
+          <div style="font-size:1.05rem;font-weight:800">${c.name}</div>
+          <div style="color:var(--muted);font-size:0.85rem">${c.career}</div>
+          <div style="color:var(--muted);font-size:0.8rem">${c.university}</div>
+        </div>
+      </div>
+      ${c.bio?`<div class="card card-sm" style="margin-bottom:14px"><p style="font-size:0.87rem;color:var(--muted2);line-height:1.55">${c.bio}</p></div>`:''}
+      <div style="margin-bottom:14px">
+        <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:7px">Habilidades</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px">${c.skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>
+      </div>
+      <div class="compat-bar" style="margin-bottom:20px">
+        ${(()=>{ const s=calcCompatForCompany(c); const l=aiLabel(s); return `
+        <div class="compat-label"><span style="color:${l.color}">${l.text}</span><strong>${s}%</strong></div>
+        <div class="compat-track"><div class="compat-fill" style="width:${s}%"></div></div>`; })()}
+      </div>
+      ${existingMatch
+        ? `<div class="btn btn-success w-full" style="justify-content:center;pointer-events:none"><i data-lucide="heart"></i> ¡Ya tienen match!</div>`
+        : alreadyLiked
+          ? `<div class="btn btn-ghost w-full" style="justify-content:center;pointer-events:none;color:var(--purple-light)"><i data-lucide="check"></i> Ya le diste like</div>`
+          : `<div class="flex gap-3">
+               <button class="btn btn-danger" style="flex:1" onclick="passCandidate('${c.id}')"><i data-lucide="x"></i> Pasar</button>
+               <button class="btn btn-primary" style="flex:1" onclick="likeCandidate('${c.id}')"><i data-lucide="heart"></i> Like</button>
+             </div>`
+      }
+    </div>`;
+  document.body.appendChild(modal);
+  icons();
+}
+
+function passCandidate(id) {
+  document.getElementById('candidate-modal')?.remove();
+  toast('Candidato descartado');
+}
+
+function likeCandidate(id) {
+  document.getElementById('candidate-modal')?.remove();
+  const candidates = DB.get('candidates') || SEED_CANDS;
+  const c = candidates.find(x => x.id === id);
+  if (!c) return;
+
+  // Guardar like de empresa
+  const likes = DB.get('company_likes') || [];
+  if (!likes.find(l => l.companyId===currentUser.id && l.candidateId===id)) {
+    DB.push('company_likes', { companyId:currentUser.id, candidateId:id, at:new Date().toLocaleString('es-AR') });
+  }
+
+  // Verificar si ya hay match
+  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
+  if (existingMatch) { toast(`Ya tenés un match con ${c.name}`); return; }
+
+  // Crear match
+  const myJobs = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved');
+  const job = myJobs[0] || { role:'Desarrollador Jr.', id:'j-demo', duration:'6 meses' };
+  const match = {
+    id:'m'+Date.now(), studentId:c.id, studentName:c.name,
+    companyId:currentUser.id, company:currentUser.name,
+    role:job.role, jobId:job.id, duration:job.duration,
+    step:1, createdAt:new Date().toLocaleString('es-AR')
+  };
+  DB.push('matches', match);
+  addNotif(currentUser.id, `¡Match con ${c.name}!`, 'heart');
+
+  // Mostrar overlay de match
+  document.getElementById('match-text').textContent = `Vos y ${c.name} se eligieron mutuamente para "${job.role}"`;
+  document.getElementById('match-avatars').innerHTML = `
+    <div style="text-align:center">
+      <div class="avatar avatar-lg" style="background:linear-gradient(135deg,var(--pink),var(--purple));color:white;font-weight:800;font-size:1.5rem;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto">${currentUser.name.charAt(0)}</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:6px">${currentUser.name.split(' ')[0]}</div>
+    </div>
+    <div style="font-size:2rem;color:var(--purple-light)">💜</div>
+    <div style="text-align:center">
+      <div style="width:72px;height:72px;border-radius:50%;background:${c.cover};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;color:white;margin:0 auto">${c.name.charAt(0)}</div>
+      <div style="font-size:0.8rem;color:var(--muted);margin-top:6px">${c.name.split(' ')[0]}</div>
+    </div>`;
+  const score = calcCompatForCompany(c);
+  document.getElementById('match-detail-box').innerHTML = `
+    <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600">Detalles</div>
+    <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="briefcase"></i>${job.role}</div>
+    <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="clock"></i>${job.duration}</div>
+    <div class="card-info-row"><i data-lucide="zap" style="color:var(--purple-light)"></i>Compatibilidad IA: <strong style="color:var(--purple-light);margin-left:4px">${score}%</strong></div>`;
+
+  // Datos de contacto del candidato (alumno registrado o seed)
+  const studentUser = (DB.get('users')||[]).find(u => u.id === c.id || u.name === c.name);
+  const contactEmail = studentUser?.email || `${c.name.toLowerCase().replace(/\s/g,'.')}@uch.edu.ar`;
+  document.getElementById('match-contact-box').innerHTML = `
+    <div style="background:var(--surface2);border:1px solid rgba(124,58,237,0.25);border-radius:var(--radius-sm);padding:14px;text-align:left">
+      <div style="font-size:0.72rem;color:var(--purple-light);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:10px">📬 Datos de contacto</div>
+      <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="user"></i><span style="font-size:0.85rem">${c.name} · UCH 4to año</span></div>
+      <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="mail"></i><span style="font-size:0.85rem">${contactEmail}</span></div>
+      <p style="color:var(--muted);font-size:0.78rem;margin-top:8px">Contactala para coordinar la entrevista y avanzar en el proceso.</p>
+    </div>`;
+
+  // Desde la empresa: esto SÍ es el match real
+  document.querySelector('#match-overlay .match-title').textContent = '¡Es un Match!';
+  document.querySelector('#match-overlay .match-title').className = 'match-title grad';
+  document.querySelector('#match-overlay .pop').textContent = '🎉';
+
+  document.getElementById('match-overlay').classList.remove('hidden');
+  icons();
+}
+
+// ════════════════════════════════════════
+//  FACULTY DASHBOARD
+// ════════════════════════════════════════
+function renderFacultyDash(tab) {
+  currentTab = tab;
+  const pending = (DB.get('jobs')||[]).filter(j=>j.status==='pending');
+  const certs = DB.get('certificates')||[];
+
+  document.getElementById('sidebar-faculty').innerHTML = `
+    <div class="sidebar-user">
+      <div class="avatar avatar-sm" style="background:linear-gradient(135deg,var(--green),#059669)">${currentUser.name.charAt(0)}</div>
+      <div class="sidebar-user-info">
+        <div class="name">${currentUser.name}</div>
+        <div class="role">Facultad</div>
+      </div>
+    </div>
+    <div class="sidebar-label">Panel</div>
+    ${sidebarItem('aprobar','check-square','Aprobar pasantías',tab,'facultad', pending.length)}
+    ${sidebarItem('certificados','award','Emitir certificados',tab,'facultad')}
+    ${sidebarItem('stats','bar-chart-2','Estadísticas',tab,'facultad')}
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-item" onclick="logout()" title="Cerrar sesión"><i data-lucide="log-out"></i><span class="sidebar-text"> Cerrar sesión</span></div>`;
+
+  const content = document.getElementById('content-faculty');
+  if (tab === 'aprobar') content.innerHTML = renderAprobar();
+  else if (tab === 'certificados') content.innerHTML = renderEmitir();
+  else if (tab === 'stats') content.innerHTML = renderStats();
+  icons();
+}
+
+function renderAprobar() {
+  const jobs = (DB.get('jobs')||[]).filter(j=>j.status==='pending');
+  return `
+    <div class="page-header">
+      <h1>Aprobar pasantías</h1>
+      <p>Revisá y aprobá las ofertas antes de publicarlas</p>
+    </div>
+    ${!jobs.length?`<div class="card" style="text-align:center;padding:40px"><i data-lucide="check-circle" style="width:36px;height:36px;color:var(--green);margin-bottom:12px"></i><h3 style="margin-bottom:8px">Todo al día</h3><p style="color:var(--muted)">No hay pasantías pendientes de aprobación</p></div>`
+    :jobs.map(j=>`
+      <div class="match-item fade-up">
+        <div class="flex justify-between items-center" style="margin-bottom:12px">
+          <div>
+            <div style="font-weight:700">${j.role}</div>
+            <div style="color:var(--muted);font-size:0.82rem">${j.company} · ${j.area} · ${j.duration}</div>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-danger btn-sm" onclick="approveJob('${j.id}','rejected')"><i data-lucide="x"></i> Rechazar</button>
+            <button class="btn btn-success btn-sm" onclick="approveJob('${j.id}','approved')"><i data-lucide="check"></i> Aprobar</button>
+          </div>
+        </div>
+        ${j.skills?.length?`<div class="card-tags">${j.skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>`:''}
+        ${j.description?`<p style="color:var(--muted);font-size:0.83rem;margin-top:8px">${j.description}</p>`:''}
+      </div>`).join('')}`;
+}
+
+function approveJob(id, status) {
+  let jobs = DB.get('jobs')||[];
+  jobs = jobs.map(j=>j.id===id?{...j,status}:j);
+  DB.set('jobs', jobs);
+  toast(status==='approved'?'Pasantía aprobada y publicada':'Pasantía rechazada');
+  renderFacultyDash('aprobar');
+}
+
+// ════════════════════════════════════════
+//  EMITIR CERTIFICADOS
+// ════════════════════════════════════════
+function renderEmitir() {
+  const allMatches = DB.get('matches')||[];
+  const certIds = (DB.get('certificates')||[]).map(c=>c.matchId);
+  const pendingMatches = allMatches.filter(m => !certIds.includes(m.id));
+  const certs = DB.get('certificates')||[];
+  return `
+    <div class="page-header">
+      <h1>Emitir certificados</h1>
+      <p>Matches activos listos para certificar en blockchain</p>
+    </div>
+    ${!pendingMatches.length && !certs.length ? `
+      <div class="card" style="margin-bottom:20px;border-color:rgba(245,158,11,0.3);background:var(--yellow-dim)">
+        <div class="flex gap-3 items-center"><i data-lucide="info" style="color:var(--yellow)"></i>
+        <span style="font-size:0.88rem">Para el demo: emitir un certificado de ejemplo</span></div>
+        <button class="btn btn-primary btn-sm" style="margin-top:12px" onclick="demoEmitir()">Emitir certificado demo</button>
+      </div>` :
+    [...pendingMatches].sort((a,b) => (b.certRequested?1:0)-(a.certRequested?1:0)).map(m=>`
+      <div class="match-item fade-up" style="${m.certRequested?'border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04)':''}">
+        <div class="flex justify-between items-center">
+          <div>
+            <div style="font-weight:700">${m.studentName} → ${m.role}</div>
+            <div style="color:var(--muted);font-size:0.82rem">${m.company} · ${m.duration}</div>
+            ${m.certRequested ? `<span class="badge badge-green" style="margin-top:6px"><i data-lucide="bell"></i> Empresa solicitó certificado</span>` : ''}
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="emitCert('${m.id}')"><i data-lucide="award"></i> Emitir SBT</button>
+        </div>
+      </div>`).join('')}
+    <div class="page-header" style="margin-top:28px"><h1>Certificados emitidos</h1></div>
+    ${certs.map(c=>`
+      <div class="cert-card fade-up" style="margin-bottom:12px">
+        <div class="flex justify-between items-center">
+          <div>
+            <div style="font-weight:700">${c.studentName} · ${c.role}</div>
+            <div style="color:var(--muted);font-size:0.82rem">${c.company} · ${c.issuedAt}</div>
+          </div>
+          <span class="badge badge-green"><i data-lucide="shield-check"></i> En blockchain</span>
+        </div>
+        <div class="cert-hash" style="margin-top:10px">${c.txHash}</div>
+      </div>`).join('')}`;
+}
+
+// ════════════════════════════════════════
+//  UTILIDADES
+// ════════════════════════════════════════
+function icons() {
+  if (window.lucide) lucide.createIcons();
+}
+
+let _toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+function avatarBg(name) {
+  const gs = [
+    'linear-gradient(135deg,#7c3aed,#a78bfa)',
+    'linear-gradient(135deg,#ec4899,#f9a8d4)',
+    'linear-gradient(135deg,#0ea5e9,#38bdf8)',
+    'linear-gradient(135deg,#10b981,#34d399)',
+    'linear-gradient(135deg,#f59e0b,#fbbf24)',
+    'linear-gradient(135deg,#6366f1,#818cf8)',
+  ];
+  const i = (name||'').split('').reduce((s,c)=>s+c.charCodeAt(0),0) % gs.length;
+  return gs[i];
+}
+
+function avatarHTML(user, size) {
+  if (user.photo) return `<img src="${user.photo}" class="avatar avatar-${size}" style="border-radius:50%;object-fit:cover"/>`;
+  return `<div class="avatar avatar-${size}" style="background:${avatarBg(user.name)};color:white;display:flex;align-items:center;justify-content:center">${(user.name||'?').charAt(0)}</div>`;
+}
+
+function renderStats() {
+  const students = (DB.get('users')||[]).filter(u=>u.role==='student');
+  const companies = (DB.get('users')||[]).filter(u=>u.role==='empresa');
+  const matches = DB.get('matches')||[];
+  const certs = DB.get('certificates')||[];
+  const jobs = (DB.get('jobs')||[]).filter(j=>j.status==='approved');
+  return `
+    <div class="page-header">
+      <h1>Estadísticas</h1>
+      <p>Resumen de la actividad en la plataforma</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--purple-dim)"><i data-lucide="users" style="color:var(--purple-light)"></i></div>
+        <div class="stat-num">${students.length}</div>
+        <div class="stat-label">Alumnos registrados</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(14,165,233,0.12)"><i data-lucide="building-2" style="color:#38bdf8"></i></div>
+        <div class="stat-num">${companies.length}</div>
+        <div class="stat-label">Empresas activas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--green-dim)"><i data-lucide="heart" style="color:var(--green)"></i></div>
+        <div class="stat-num">${matches.length}</div>
+        <div class="stat-label">Matches totales</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--yellow-dim)"><i data-lucide="award" style="color:var(--yellow)"></i></div>
+        <div class="stat-num">${certs.length}</div>
+        <div class="stat-label">Certificados emitidos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:var(--purple-dim)"><i data-lucide="briefcase" style="color:var(--purple-light)"></i></div>
+        <div class="stat-num">${jobs.length}</div>
+        <div class="stat-label">Pasantías activas</div>
+      </div>
+    </div>
+    <div class="card" style="max-width:500px;margin-top:8px">
+      <div style="font-weight:700;margin-bottom:14px">Actividad reciente</div>
+      ${matches.slice(-3).reverse().map(m=>`
+        <div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="width:36px;height:36px;background:var(--green-dim);border-radius:50%;display:flex;align-items:center;justify-content:center"><i data-lucide="heart" style="width:16px;height:16px;color:var(--green)"></i></div>
+          <div>
+            <div style="font-size:0.87rem;font-weight:600">Match: ${m.studentName} → ${m.company}</div>
+            <div style="font-size:0.75rem;color:var(--muted)">${m.createdAt||'Reciente'}</div>
+          </div>
+        </div>`).join('') || '<div style="color:var(--muted);font-size:0.85rem;padding:12px 0">Sin actividad reciente</div>'}
+    </div>`;
+}
+
+// ════════════════════════════════════════
+//  BLOCKCHAIN HASH
+// ════════════════════════════════════════
+async function generateHash(data) {
+  const str = JSON.stringify(data);
+  const buf = new TextEncoder().encode(str);
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+  return '0x' + Array.from(new Uint8Array(hashBuf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+
+async function demoEmitir() {
+  const issuedAt = new Date().toLocaleDateString('es-AR');
+  const certData = { studentName:'Lucía Fernández', company:'Mercado Libre', role:'Desarrollador Full Stack Jr.', duration:'6 meses', issuedAt, ts: Date.now() };
+  const txHash = await generateHash(certData);
+  const cert = { id:'cert'+Date.now(), studentId:'demo-st-1', ...certData, txHash,
+    block:String(14800000+Math.floor(Math.random()*100000)), network:'Polygon Amoy', evaluation:'Excelente', matchId:'demo-match-1' };
+  DB.push('certificates', cert);
+  addNotif('demo-st-1', '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
+  toast('✓ Certificado SBT emitido en Polygon Amoy');
+  renderFacultyDash('certificados');
+}
+
+async function emitCert(matchId) {
+  const m = (DB.get('matches')||[]).find(x=>x.id===matchId);
+  if(!m) return;
+  const issuedAt = new Date().toLocaleDateString('es-AR');
+  const certData = { studentName:m.studentName, company:m.company, role:m.role, duration:m.duration, issuedAt, ts: Date.now() };
+  const txHash = await generateHash(certData);
+  const cert = { id:'cert'+Date.now(), studentId:m.studentId, ...certData, txHash,
+    block:String(14800000+Math.floor(Math.random()*100000)), network:'Polygon Amoy', evaluation:'Muy bueno', matchId: m.id };
+  DB.push('certificates', cert);
+  addNotif(m.studentId, '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
+  toast('✓ Certificado SBT emitido en Polygon Amoy');
+  renderFacultyDash('certificados');
+}
+
+// ════════════════════════════════════════
+//  EXPLORADOR BLOCKCHAIN
+// ════════════════════════════════════════
+function renderVerify() {
+  const el = document.getElementById('verify-content');
+  el.innerHTML = `
+    <div style="text-align:center;margin-bottom:32px">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#7c3aed,#4f46e5);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+        <i data-lucide="search" style="width:28px;height:28px;color:#fff"></i>
+      </div>
+      <h1 style="margin-bottom:8px">Explorador Blockchain</h1>
+      <p style="color:var(--muted)">Buscá un certificado por su hash para verificar su autenticidad</p>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:24px">
+      <input id="hash-input" class="form-input" placeholder="0x3a8f2c..." style="flex:1;font-family:monospace;font-size:0.85rem"
+        onkeydown="if(event.key==='Enter') searchCert()">
+      <button class="btn btn-primary" onclick="searchCert()"><i data-lucide="search"></i> Buscar</button>
+    </div>
+    <div id="cert-result"></div>
+    <div style="text-align:center;margin-top:24px">
+      <button class="btn btn-ghost btn-sm" onclick="goHome()">volver</button>
+    </div>`;
+  icons();
+}
+
+function searchCert() {
+  const hash = (document.getElementById('hash-input').value||'').trim();
+  const result = document.getElementById('cert-result');
+  if (!hash) { result.innerHTML = ''; return; }
+  const cert = (DB.get('certificates')||[]).find(c => c.txHash === hash);
+  if (!cert) {
+    result.innerHTML = `
+      <div class="card" style="text-align:center;padding:32px;border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.04)">
+        <i data-lucide="x-circle" style="width:36px;height:36px;color:var(--red);margin-bottom:12px"></i>
+        <h3 style="margin-bottom:6px">Certificado no encontrado</h3>
+        <p style="color:var(--muted);font-size:0.85rem">Este hash no corresponde a ningun certificado registrado en la red.</p>
+      </div>`;
+    icons(); return;
+  }
+  result.innerHTML = `
+    <div class="card fade-up" style="border-color:rgba(16,185,129,0.4);background:rgba(16,185,129,0.04);padding:24px;margin-bottom:16px">
+      <div class="flex gap-3 items-center" style="margin-bottom:20px">
+        <div style="width:44px;height:44px;background:linear-gradient(135deg,#10b981,#059669);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i data-lucide="shield-check" style="width:22px;height:22px;color:#fff"></i>
+        </div>
+        <div>
+          <div style="font-weight:700;font-size:1.05rem">Certificado valido</div>
+          <div style="color:var(--muted);font-size:0.82rem">Registrado en Polygon Amoy - Bloque #${cert.block}</div>
+        </div>
+        <span class="badge badge-green" style="margin-left:auto">Autentico</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Titular</div><div style="font-weight:600">${cert.studentName}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Empresa</div><div style="font-weight:600">${cert.company}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Rol</div><div style="font-weight:600">${cert.role}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Duracion</div><div style="font-weight:600">${cert.duration}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fecha de emision</div><div style="font-weight:600">${cert.issuedAt}</div></div>
+        <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Evaluacion</div><div style="font-weight:600">${cert.evaluation}</div></div>
+      </div>
+      <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Transaction Hash (SHA-256)</div>
+      <div class="cert-hash">${cert.txHash}</div>
+      <div style="margin-top:12px;font-size:0.75rem;color:var(--muted)">
+        Hash generado a partir de los datos del certificado usando SHA-256. Cualquier alteracion cambiaria el hash completamente.
+      </div>
+    </div>`;
+  icons();
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+initDB();
+(function() {
+  const saved = DB.get('currentUser');
+  if (saved) { currentUser = saved; renderDashboard(); }
+  else { showScreen('landing'); }
+})();
+</script>
+</body>
+</html>
