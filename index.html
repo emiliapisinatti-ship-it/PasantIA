@@ -2234,7 +2234,7 @@ function renderStats() {
 //  BLOCKCHAIN — HEDERA TESTNET
 // ════════════════════════════════════════
 const HEDERA_RPC   = 'https://testnet.hashio.io/api';
-const CONTRACT_ADDR = '0x0000000000000000000000000000000000008d91a9';
+const CONTRACT_ADDR = '0x' + '0'.repeat(34) + '8d91a9'; // 0.0.9277865 → 20 bytes exactos
 const FACULTY_KEY  = '0x0d0bdde3df792fb53cce87309df52788421f3173495e025b4b590992242d2603';
 const CONTRACT_ABI = [
   'function registrarPasantia(address _alumno, string _empresa, string _rol, uint256 _duracionMeses) public',
