@@ -411,7 +411,7 @@ textarea.form-input{resize:vertical;min-height:90px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/ethers@6/dist/ethers.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@5/dist/ethers.umd.min.js"></script>
 <script>
 // ════════════════════════════════════════
 //  STORAGE (Supabase + localStorage para currentUser)
@@ -2244,8 +2244,7 @@ const CONTRACT_ABI = [
 ];
 
 async function getContract() {
-  const network = new ethers.Network('hedera-testnet', 296);
-  const provider = new ethers.JsonRpcProvider(HEDERA_RPC, network, { staticNetwork: network });
+  const provider = new ethers.providers.StaticJsonRpcProvider(HEDERA_RPC, { chainId: 296, name: 'hedera-testnet' });
   const wallet = new ethers.Wallet(FACULTY_KEY, provider);
   return new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, wallet);
 }
@@ -2255,7 +2254,7 @@ async function emitirEnHedera(studentName, company, role, duration) {
   const duracionMeses = parseInt(duration) || 6;
   const alumnoAddr = '0x0000000000000000000000000000000000000001';
   const id = await contract.contadorPasantias();
-  const tx1 = await contract.registrarPasantia(alumnoAddr, company, role, BigInt(duracionMeses));
+  const tx1 = await contract.registrarPasantia(alumnoAddr, company, role, duracionMeses);
   await tx1.wait();
   const tx2 = await contract.confirmarPorEmpresa(id);
   await tx2.wait();
