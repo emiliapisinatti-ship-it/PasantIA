@@ -411,6 +411,7 @@ textarea.form-input{resize:vertical;min-height:90px}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6/dist/ethers.umd.min.js"></script>
 <script>
 // ════════════════════════════════════════
 //  STORAGE (Supabase + localStorage para currentUser)
@@ -1483,7 +1484,7 @@ function renderCertificados() {
             <div style="font-size:0.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:8px">Datos del certificado</div>
             <div class="card-info-row" style="margin-bottom:5px"><i data-lucide="calendar"></i><span style="font-size:0.82rem">Emitido: ${c.issuedAt}</span></div>
             <div class="card-info-row" style="margin-bottom:5px"><i data-lucide="star"></i><span style="font-size:0.82rem">Evaluación: ${c.evaluation||'Muy bueno'}</span></div>
-            <div class="card-info-row"><i data-lucide="link"></i><span style="font-size:0.82rem">${c.network||'Polygon Amoy'}</span></div>
+            <div class="card-info-row"><i data-lucide="link"></i><span style="font-size:0.82rem">${c.network||'Hedera Testnet'}</span></div>
             <div class="cert-hash">${c.txHash}</div>
             <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Bloque #${c.block||'14823901'}</div>
           </div>
@@ -2230,8 +2231,38 @@ function renderStats() {
 }
 
 // ════════════════════════════════════════
-//  BLOCKCHAIN HASH
+//  BLOCKCHAIN — HEDERA TESTNET
 // ════════════════════════════════════════
+const HEDERA_RPC   = 'https://testnet.hashio.io/api';
+const CONTRACT_ADDR = '0x0000000000000000000000000000000000008d91a9';
+const FACULTY_KEY  = '0x0d0bdde3df792fb53cce87309df52788421f3173495e025b4b590992242d2603';
+const CONTRACT_ABI = [
+  'function registrarPasantia(address _alumno, string _empresa, string _rol, uint256 _duracionMeses) public',
+  'function confirmarPorEmpresa(uint256 _id) public',
+  'function confirmarPorFacultad(uint256 _id) public',
+  'function contadorPasantias() public view returns (uint256)'
+];
+
+async function getContract() {
+  const provider = new ethers.JsonRpcProvider(HEDERA_RPC);
+  const wallet = new ethers.Wallet(FACULTY_KEY, provider);
+  return new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, wallet);
+}
+
+async function emitirEnHedera(studentName, company, role, duration) {
+  const contract = await getContract();
+  const duracionMeses = parseInt(duration) || 6;
+  const alumnoAddr = '0x0000000000000000000000000000000000000001';
+  const id = await contract.contadorPasantias();
+  const tx1 = await contract.registrarPasantia(alumnoAddr, company, role, BigInt(duracionMeses));
+  await tx1.wait();
+  const tx2 = await contract.confirmarPorEmpresa(id);
+  await tx2.wait();
+  const tx3 = await contract.confirmarPorFacultad(id);
+  const receipt = await tx3.wait();
+  return { txHash: tx3.hash, block: String(receipt.blockNumber) };
+}
+
 async function generateHash(data) {
   const str = JSON.stringify(data);
   const buf = new TextEncoder().encode(str);
@@ -2240,29 +2271,37 @@ async function generateHash(data) {
 }
 
 async function demoEmitir() {
-  const issuedAt = new Date().toLocaleDateString('es-AR');
-  const certData = { studentName:'Lucía Fernández', company:'Mercado Libre', role:'Desarrollador Full Stack Jr.', duration:'6 meses', issuedAt, ts: Date.now() };
-  const txHash = await generateHash(certData);
-  const cert = { id:'cert'+Date.now(), studentId:'demo-st-1', ...certData, txHash,
-    block:String(14800000+Math.floor(Math.random()*100000)), network:'Polygon Amoy', evaluation:'Excelente', matchId:'demo-match-1' };
-  DB.push('certificates', cert);
-  addNotif('demo-st-1', '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
-  toast('✓ Certificado SBT emitido en Polygon Amoy');
-  renderFacultyDash('certificados');
+  toast('⏳ Emitiendo en Hedera Testnet...');
+  try {
+    const { txHash, block } = await emitirEnHedera('Lucía Fernández', 'Mercado Libre', 'Desarrollador Full Stack Jr.', '6 meses');
+    const issuedAt = new Date().toLocaleDateString('es-AR');
+    const cert = { id:'cert'+Date.now(), studentId:'demo-st-1', studentName:'Lucía Fernández', company:'Mercado Libre', role:'Desarrollador Full Stack Jr.', duration:'6 meses', issuedAt, txHash, block, network:'Hedera Testnet', evaluation:'Excelente', matchId:'demo-match-1', contractId:'0.0.9277865' };
+    DB.push('certificates', cert);
+    addNotif('demo-st-1', '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
+    toast('✓ Certificado SBT emitido en Hedera Testnet');
+    renderFacultyDash('certificados');
+  } catch(err) {
+    console.error(err);
+    toast('Error blockchain: ' + (err.shortMessage || err.message));
+  }
 }
 
 async function emitCert(matchId) {
   const m = (DB.get('matches')||[]).find(x=>x.id===matchId);
   if(!m) return;
-  const issuedAt = new Date().toLocaleDateString('es-AR');
-  const certData = { studentName:m.studentName, company:m.company, role:m.role, duration:m.duration, issuedAt, ts: Date.now() };
-  const txHash = await generateHash(certData);
-  const cert = { id:'cert'+Date.now(), studentId:m.studentId, ...certData, txHash,
-    block:String(14800000+Math.floor(Math.random()*100000)), network:'Polygon Amoy', evaluation:'Muy bueno', matchId: m.id };
-  DB.push('certificates', cert);
-  addNotif(m.studentId, '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
-  toast('✓ Certificado SBT emitido en Polygon Amoy');
-  renderFacultyDash('certificados');
+  toast('⏳ Emitiendo en Hedera Testnet...');
+  try {
+    const { txHash, block } = await emitirEnHedera(m.studentName, m.company, m.role, m.duration);
+    const issuedAt = new Date().toLocaleDateString('es-AR');
+    const cert = { id:'cert'+Date.now(), studentId:m.studentId, studentName:m.studentName, company:m.company, role:m.role, duration:m.duration, issuedAt, txHash, block, network:'Hedera Testnet', evaluation:'Muy bueno', matchId:m.id, contractId:'0.0.9277865' };
+    DB.push('certificates', cert);
+    addNotif(m.studentId, '¡Tu certificado blockchain fue emitido! Podés verlo en "Mis certificados".', 'award');
+    toast('✓ Certificado SBT emitido en Hedera Testnet');
+    renderFacultyDash('certificados');
+  } catch(err) {
+    console.error(err);
+    toast('Error blockchain: ' + (err.shortMessage || err.message));
+  }
 }
 
 // ════════════════════════════════════════
@@ -2312,7 +2351,7 @@ function searchCert() {
         </div>
         <div>
           <div style="font-weight:700;font-size:1.05rem">Certificado valido</div>
-          <div style="color:var(--muted);font-size:0.82rem">Registrado en Polygon Amoy - Bloque #${cert.block}</div>
+          <div style="color:var(--muted);font-size:0.82rem">Registrado en ${cert.network||'Hedera Testnet'} - Bloque #${cert.block}</div>
         </div>
         <span class="badge badge-green" style="margin-left:auto">Autentico</span>
       </div>
