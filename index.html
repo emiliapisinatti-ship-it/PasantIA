@@ -1407,7 +1407,7 @@ function renderStudentMatches() {
           <button class="btn btn-ghost btn-sm" onclick="showMatchDetail('${m.id}')">
             <i data-lucide="info"></i> Ver contacto
           </button>
-          ${m.step >= 4 ? `<span class="badge badge-green"><i data-lucide="check-circle"></i> Pasantía en curso</span>` : ''}
+          ${(DB.get('certificates')||[]).find(c=>c.matchId===m.id) ? `<span class="badge badge-green"><i data-lucide="shield-check"></i> Pasantía completada</span>` : m.step >= 4 ? `<span class="badge badge-green"><i data-lucide="check-circle"></i> Pasantía en curso</span>` : ''}
         </div>
       </div>`).join('')}`;
 }
@@ -1439,7 +1439,7 @@ function showMatchDetail(matchId) {
         ${m.step === 1 ? '1. La empresa te contactará para coordinar una entrevista.<br>2. Si avanzás, firmarás el convenio con la facultad.<br>3. Empezás la pasantía y al terminar recibís tu certificado blockchain.' :
           m.step === 2 ? 'Estás en proceso de firma de contrato. La facultad revisará el convenio.' :
           m.step === 3 ? '¡Contrato firmado! Estás a punto de comenzar la pasantía.' :
-          '¡Pasantía en curso! Al terminar, la facultad emitirá tu certificado blockchain.'}
+          (DB.get('certificates')||[]).find(c=>c.matchId===m.id) ? '¡Pasantía completada! Tu certificado blockchain fue emitido y está disponible en "Mis certificados".' : '¡Pasantía en curso! Al terminar, la facultad emitirá tu certificado blockchain.'}
       </div>
     </div>`;
   document.body.appendChild(modal);
