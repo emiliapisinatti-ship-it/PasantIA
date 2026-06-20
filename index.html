@@ -1489,7 +1489,7 @@ function renderCertificados() {
             <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Bloque #${c.block||'14823901'}</div>
           </div>
           <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
-            ${buildQR()}
+            ${buildQR(c.txHash)}
             <div style="font-size:0.72rem;color:var(--muted)">Escaneá para verificar</div>
             <button class="btn btn-ghost btn-sm" onclick="copyHash('${c.txHash}')">
               <i data-lucide="copy"></i> Copiar hash
@@ -1499,14 +1499,12 @@ function renderCertificados() {
       </div>`).join('')}`;
 }
 
-function buildQR() {
-  const s=6, n=15;
-  const cells = Array.from({length:n*n},(_,i)=>Math.random()>0.5?1:0);
-  // Fixed corner squares
-  for(let r=0;r<3;r++) for(let c=0;c<3;c++) { cells[r*n+c]=1; cells[r*n+(n-1-c)]=1; cells[(n-1-r)*n+c]=1; }
-  return `<div class="qr-placeholder"><svg width="68" height="68" viewBox="0 0 ${n*s} ${n*s}" xmlns="http://www.w3.org/2000/svg">
-    ${cells.map((v,i)=>v?`<rect x="${(i%n)*s}" y="${Math.floor(i/n)*s}" width="${s-1}" height="${s-1}" fill="#0f172a"/>`:''  ).join('')}
-  </svg></div>`;
+function buildQR(hash) {
+  const url = hash
+    ? `https://hashscan.io/testnet/transaction/${hash}`
+    : `https://hashscan.io/testnet/contract/0.0.9277865`;
+  const api = `https://api.qrserver.com/v1/create-qr-code/?size=68x68&data=${encodeURIComponent(url)}`;
+  return `<img src="${api}" width="68" height="68" style="border-radius:4px;background:#fff;padding:2px">`;
 }
 
 function copyHash(hash) {
@@ -2363,10 +2361,10 @@ function searchCert() {
         <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Fecha de emision</div><div style="font-weight:600">${cert.issuedAt}</div></div>
         <div><div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Evaluacion</div><div style="font-weight:600">${cert.evaluation}</div></div>
       </div>
-      <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Transaction Hash (SHA-256)</div>
+      <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">Transaction Hash (Hedera Testnet)</div>
       <div class="cert-hash">${cert.txHash}</div>
       <div style="margin-top:12px;font-size:0.75rem;color:var(--muted)">
-        Hash generado a partir de los datos del certificado usando SHA-256. Cualquier alteracion cambiaria el hash completamente.
+        Hash de la transacción registrada en Hedera Testnet. Verificable públicamente en HashScan.
       </div>
     </div>`;
   icons();
