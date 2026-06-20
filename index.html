@@ -1818,19 +1818,23 @@ function renderMisPasantias() {
       <p>Estado de todas tus publicaciones</p>
     </div>
     ${!jobs.length?`<div class="card" style="text-align:center;padding:40px"><i data-lucide="briefcase" style="width:36px;height:36px;color:var(--muted);margin-bottom:12px"></i><p style="color:var(--muted)">No publicaste ninguna pasantía todavía</p><button class="btn btn-primary btn-sm" style="margin-top:16px" onclick="renderCompanyDash('publicar')">Publicar ahora</button></div>`
-    :jobs.map(j=>`
+    :(()=>{ const matches = DB.get('matches')||[]; const certs = DB.get('certificates')||[]; return jobs.map(j=>{ const match = matches.find(m=>m.jobId===j.id); const cert = match ? certs.find(c=>c.matchId===match.id) : null; const ocupada = !!match; return `
       <div class="match-item fade-up">
         <div class="flex justify-between items-center">
           <div>
             <div style="font-weight:700">${j.role}</div>
             <div style="color:var(--muted);font-size:0.82rem">${j.area} · ${j.duration} · ${j.modality}</div>
+            ${ocupada?`<div style="font-size:0.78rem;color:var(--purple-light);margin-top:4px">Alumno: ${match.studentName}</div>`:''}
           </div>
-          <span class="badge ${j.status==='approved'?'badge-green':j.status==='rejected'?'badge-red':'badge-yellow'}">
-            ${j.status==='approved'?'Aprobada':j.status==='rejected'?'Rechazada':'Pendiente'}
-          </span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="badge ${j.status==='approved'?'badge-green':j.status==='rejected'?'badge-red':'badge-yellow'}">
+              ${j.status==='approved'?'Aprobada':j.status==='rejected'?'Rechazada':'Pendiente'}
+            </span>
+            ${cert?`<span class="badge badge-green"><i data-lucide="shield-check"></i> Certificado emitido</span>`:ocupada?`<span class="badge" style="background:rgba(124,58,237,0.15);color:var(--purple-light)"><i data-lucide="user-check"></i> En proceso</span>`:''}
+          </div>
         </div>
         ${j.skills?.length?`<div class="card-tags" style="margin-top:10px">${j.skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>`:''}
-      </div>`).join('')}`;
+      </div>`; }).join(''); })()}`;
 }
 
 function renderCandidatos() {
