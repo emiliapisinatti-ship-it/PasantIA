@@ -2244,7 +2244,7 @@ const CONTRACT_ABI = [
 ];
 
 async function getContract() {
-  const provider = new ethers.JsonRpcProvider(HEDERA_RPC);
+  const provider = new ethers.JsonRpcProvider(HEDERA_RPC, { chainId: 296, name: 'hedera-testnet' });
   const wallet = new ethers.Wallet(FACULTY_KEY, provider);
   return new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, wallet);
 }
