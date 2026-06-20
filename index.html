@@ -1389,8 +1389,8 @@ function renderStudentMatches() {
             <div style="font-weight:700;font-size:1rem">${m.role}</div>
             <div style="color:var(--muted);font-size:0.85rem">${m.company} · ${m.duration}</div>
           </div>
-          <span class="badge ${m.step>=4?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
-            ${m.step>=4?'En curso':m.step>=2?'Con contrato':'Match reciente'}
+          <span class="badge ${(DB.get('certificates')||[]).find(c=>c.matchId===m.id)?'badge-green':m.step>=4?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
+            ${(DB.get('certificates')||[]).find(c=>c.matchId===m.id)?'Completada':m.step>=4?'En curso':m.step>=2?'Con contrato':'Match reciente'}
           </span>
         </div>
         <div class="tracker">
