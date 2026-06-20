@@ -1674,9 +1674,16 @@ function renderCompanyMatches() {
               <div class="tracker-label">${s}</div>
             </div>`).join('')}
         </div>
-        ${m.step < 4 ? `<button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
+        ${(()=>{ const cert = (DB.get('certificates')||[]).find(c=>c.matchId===m.id); return m.step < 4 ? `<button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
           <i data-lucide="chevrons-right"></i> Avanzar etapa
-        </button>` : m.certRequested ? `
+        </button>` : cert ? `
+        <div style="background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:14px">
+          <div class="flex gap-2 items-center" style="margin-bottom:6px">
+            <i data-lucide="shield-check" style="color:var(--green)"></i>
+            <span style="font-weight:700;color:var(--green);font-size:0.9rem">Certificado emitido en blockchain</span>
+          </div>
+          <p style="color:var(--muted);font-size:0.82rem;margin:0">El certificado SBT de ${m.studentName} fue registrado en Hedera Testnet · Bloque #${cert.block}</p>
+        </div>` : m.certRequested ? `
         <div style="background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:14px">
           <div class="flex gap-2 items-center" style="margin-bottom:6px">
             <i data-lucide="check-circle" style="color:var(--green)"></i>
@@ -1692,7 +1699,7 @@ function renderCompanyMatches() {
           <button class="btn btn-success btn-sm" onclick="notifyFacultadCert('${m.id}')">
             <i data-lucide="send"></i> Solicitar certificado a facultad
           </button>
-        </div>`}
+        </div>`; })()}
       </div>`; }).join('')}`;
 }
 
@@ -1705,7 +1712,7 @@ function notifyFacultadCert(matchId) {
   DB.set('matches', matches);
   // Notificar al alumno también
   addNotif(m.studentId, `${currentUser.name} solicitó tu certificado blockchain a la facultad.`, 'award');
-  toast('✓ Solicitud enviada a la facultad — emitirán el certificado SBT en Polygon');
+  toast('✓ Solicitud enviada a la facultad — emitirán el certificado SBT en Hedera');
   renderCompanyDash('matches');
 }
 
