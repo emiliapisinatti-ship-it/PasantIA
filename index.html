@@ -589,6 +589,41 @@ let studentSkills = [];
 let jobSkills = [];
 let photoData = '';
 
+function addSkill(e, type) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const isJob = type === 'job';
+  const inputId = isJob ? 'job-skill-input' : 'skill-input';
+  const wrapId  = isJob ? 'job-skills-wrap'  : 'skills-wrap';
+  const arr     = isJob ? jobSkills : studentSkills;
+  const input   = document.getElementById(inputId);
+  const val     = (input.value||'').trim();
+  if (!val) return;
+  if (!arr.includes(val)) {
+    arr.push(val);
+    const wrap = document.getElementById(wrapId);
+    const tag = document.createElement('span');
+    tag.className = 'tag-item';
+    tag.innerHTML = `${val}<button onclick="removeSkill('${val}','${type}')">×</button>`;
+    wrap.insertBefore(tag, input);
+  }
+  input.value = '';
+}
+
+function removeSkill(skill, type) {
+  const isJob = type === 'job';
+  const arr   = isJob ? jobSkills : studentSkills;
+  const wrapId = isJob ? 'job-skills-wrap' : 'skills-wrap';
+  const idx = arr.indexOf(skill);
+  if (idx !== -1) arr.splice(idx, 1);
+  const wrap = document.getElementById(wrapId);
+  if (wrap) {
+    [...wrap.querySelectorAll('.tag-item')].forEach(el => {
+      if (el.textContent.replace('×','').trim() === skill) el.remove();
+    });
+  }
+}
+
 function startAuth(role) {
   authRole = role;
   authStep = role ? 2 : 1;
@@ -1598,6 +1633,12 @@ function removeProfileSkill(skill) {
 
 function saveProfile() {
   currentUser.bio = document.getElementById('p-bio')?.value;
+  const wrap = document.getElementById('skills-wrap');
+  if (wrap) {
+    currentUser.skills = [...wrap.querySelectorAll('.tag-item')]
+      .map(el => el.textContent.replace('×','').trim())
+      .filter(Boolean);
+  }
   updateCurrentUser();
   toast('Perfil guardado');
 }
