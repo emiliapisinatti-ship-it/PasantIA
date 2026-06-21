@@ -1709,6 +1709,20 @@ function renderCompanyMatches() {
       const st = students.find(u => u.id === m.studentId);
       const email = st?.email || `${m.studentName.toLowerCase().replace(/\s/g,'.')}@uch.edu.ar`;
       const skills = st?.skills || [];
+      if (m.cancelled) return `
+      <div class="match-item fade-up" style="margin-bottom:14px;opacity:0.55;border-color:rgba(248,113,113,0.25)">
+        <div class="flex justify-between items-center">
+          <div class="flex gap-3 items-center">
+            <div style="width:44px;height:44px;border-radius:50%;background:${avatarBg(m.studentName)};display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:1.1rem;flex-shrink:0">${m.studentName.charAt(0)}</div>
+            <div>
+              <div style="font-weight:700">${m.studentName}</div>
+              <div style="color:var(--muted);font-size:0.82rem">${m.role} · ${m.company}</div>
+            </div>
+          </div>
+          <span class="badge" style="background:rgba(248,113,113,0.15);color:#f87171;border-color:rgba(248,113,113,0.3)"><i data-lucide="x-circle"></i> Proceso terminado</span>
+        </div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-top:8px">Finalizado el ${m.cancelledAt||''}</div>
+      </div>`;
       return `
       <div class="match-item fade-up" style="margin-bottom:14px">
         <div class="flex justify-between items-center" style="margin-bottom:14px">
@@ -1786,7 +1800,7 @@ function cancelMatch(matchId) {
   let matches = DB.get('matches') || [];
   const m = matches.find(x => x.id === matchId);
   if (!m) return;
-  matches = matches.filter(x => x.id !== matchId);
+  matches = matches.map(x => x.id === matchId ? { ...x, cancelled: true, cancelledAt: new Date().toLocaleString('es-AR') } : x);
   DB.set('matches', matches);
   // Liberar el like para que puedan elegir otro candidato
   let compLikes = DB.get('company_likes') || [];
@@ -2182,7 +2196,7 @@ function approveJob(id, status) {
 function renderEmitir() {
   const allMatches = DB.get('matches')||[];
   const certIds = (DB.get('certificates')||[]).map(c=>c.matchId);
-  const pendingMatches = allMatches.filter(m => !certIds.includes(m.id) && (m.step >= 4 || m.certRequested));
+  const pendingMatches = allMatches.filter(m => !certIds.includes(m.id) && !m.cancelled && (m.step >= 4 || m.certRequested));
   const certs = DB.get('certificates')||[];
   return `
     <div class="page-header">
