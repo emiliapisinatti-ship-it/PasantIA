@@ -1586,24 +1586,38 @@ function updatePhoto(input) {
 }
 
 function addProfileSkill(e) {
-  if(e.key!=='Enter') return; e.preventDefault();
-  const val=e.target.value.trim(); if(!val) return;
-  if(!(currentUser.skills||[]).includes(val)) {
-    currentUser.skills = [...(currentUser.skills||[]), val];
-    updateCurrentUser();
-    renderStudentDash('perfil');
-  }
-  e.target.value='';
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById('skill-input');
+  const val = (input.value||'').trim();
+  if (!val) return;
+  const existing = [...document.querySelectorAll('#skills-wrap .tag-item')]
+    .map(el => el.firstChild.textContent.trim());
+  if (existing.includes(val)) { input.value=''; return; }
+  const wrap = document.getElementById('skills-wrap');
+  const tag = document.createElement('span');
+  tag.className = 'tag-item';
+  const text = document.createTextNode(val);
+  const btn = document.createElement('button');
+  btn.textContent = '×';
+  btn.onclick = () => tag.remove();
+  tag.appendChild(text);
+  tag.appendChild(btn);
+  wrap.insertBefore(tag, input);
+  input.value = '';
 }
 
 function removeProfileSkill(s) {
-  currentUser.skills=(currentUser.skills||[]).filter(x=>x!==s);
-  updateCurrentUser();
-  renderStudentDash('perfil');
+  [...document.querySelectorAll('#skills-wrap .tag-item')].forEach(el => {
+    if (el.firstChild.textContent.trim() === s) el.remove();
+  });
 }
 
 function saveProfile() {
   currentUser.bio = document.getElementById('p-bio')?.value;
+  currentUser.skills = [...document.querySelectorAll('#skills-wrap .tag-item')]
+    .map(el => el.firstChild.textContent.trim())
+    .filter(Boolean);
   updateCurrentUser();
   toast('Perfil guardado');
 }
