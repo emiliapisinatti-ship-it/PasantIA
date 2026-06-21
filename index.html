@@ -1562,9 +1562,12 @@ function renderPerfil() {
       </div>
       <div class="form-group">
         <label class="form-label">Habilidades</label>
-        <div class="tags-input-wrap" id="skills-wrap">
-          ${(currentUser.skills||[]).map(s=>`<span class="tag-item">${s}<button onclick="removeProfileSkill('${s}')">×</button></span>`).join('')}
-          <input placeholder="Agregar habilidad..." onkeydown="addProfileSkill(event)" id="skill-input"/>
+        <div style="display:flex;gap:8px">
+          <div class="tags-input-wrap" id="skills-wrap" style="flex:1">
+            ${(currentUser.skills||[]).map(s=>`<span class="tag-item" data-skill="${s}">${s}<button onclick="removeProfileSkill('${s}')">×</button></span>`).join('')}
+            <input placeholder="React, Python, SQL..." onkeydown="addProfileSkill(event)" id="skill-input" style="min-width:80px"/>
+          </div>
+          <button class="btn btn-ghost" type="button" onclick="addProfileSkillBtn()" style="flex-shrink:0;padding:0 14px">+</button>
         </div>
       </div>
       <button class="btn btn-primary w-full" onclick="saveProfile()">
@@ -1585,15 +1588,12 @@ function updatePhoto(input) {
   reader.readAsDataURL(file);
 }
 
-function addProfileSkill(e) {
-  if (e.key !== 'Enter') return;
-  e.preventDefault();
-  const input = document.getElementById('skill-input');
-  const val = (input.value||'').trim();
+function _doAddProfileSkill(val) {
   if (!val) return;
   if (!currentUser.skills) currentUser.skills = [];
-  if (currentUser.skills.includes(val)) { input.value = ''; return; }
+  if (currentUser.skills.includes(val)) return;
   currentUser.skills.push(val);
+  const input = document.getElementById('skill-input');
   const wrap = document.getElementById('skills-wrap');
   const tag = document.createElement('span');
   tag.className = 'tag-item';
@@ -1604,7 +1604,21 @@ function addProfileSkill(e) {
   btn.onclick = () => removeProfileSkill(val);
   tag.appendChild(btn);
   wrap.insertBefore(tag, input);
+}
+
+function addProfileSkill(e) {
+  if (e.key !== 'Enter') return;
+  e.preventDefault();
+  const input = document.getElementById('skill-input');
+  _doAddProfileSkill((input.value||'').trim());
   input.value = '';
+}
+
+function addProfileSkillBtn() {
+  const input = document.getElementById('skill-input');
+  _doAddProfileSkill((input.value||'').trim());
+  input.value = '';
+  input.focus();
 }
 
 function removeProfileSkill(s) {
@@ -1616,6 +1630,8 @@ function removeProfileSkill(s) {
 
 function saveProfile() {
   currentUser.bio = document.getElementById('p-bio')?.value;
+  const pendingInput = document.getElementById('skill-input');
+  if (pendingInput?.value.trim()) _doAddProfileSkill(pendingInput.value.trim());
   updateCurrentUser();
   renderStudentDash('perfil');
   toast('Perfil guardado');
