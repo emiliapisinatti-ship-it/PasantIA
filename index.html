@@ -1327,7 +1327,7 @@ function doSwipe(dir) {
     }
     // Check if company already liked this student → mutual match
     const companyLikedMe = (DB.get('company_likes')||[]).find(l=>l.companyId===job.companyId&&l.candidateId===currentUser.id);
-    const alreadyMatched = (DB.get('matches')||[]).find(m=>m.studentId===currentUser.id&&m.companyId===job.companyId);
+    const alreadyMatched = (DB.get('matches')||[]).find(m=>m.studentId===currentUser.id&&m.companyId===job.companyId&&m.jobId===job.id&&!m.cancelled);
     if (companyLikedMe && !alreadyMatched) {
       setTimeout(()=>triggerMatch(job, true), 500);
     } else if (!alreadyMatched) {
@@ -1952,7 +1952,8 @@ function getCandidates() {
 
 function renderCandidatos() {
   const candidates = getCandidates();
-  const myMatches = (DB.get('matches')||[]).filter(m=>m.companyId===currentUser.id);
+  const myActiveJobIds3 = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved').map(j=>j.id);
+  const myMatches = (DB.get('matches')||[]).filter(m=>m.companyId===currentUser.id&&!m.cancelled&&myActiveJobIds3.includes(m.jobId));
   const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
   const matchedIds = myMatches.map(m=>m.studentId);
   return `
@@ -2000,7 +2001,8 @@ function viewCandidate(id) {
   if (!c) return;
   const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
   const alreadyLiked = likedIds.includes(c.id);
-  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
+  const myActiveJobIds = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved').map(j=>j.id);
+  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id&&myActiveJobIds.includes(m.jobId)&&!m.cancelled);
 
   const modal = document.createElement('div');
   modal.id = 'candidate-modal';
@@ -2056,8 +2058,9 @@ function likeCandidate(id) {
   if (!c) return;
 
   // Verificar si ya hay match
-  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
-  if (existingMatch) { toast(`Ya tenés un match con ${c.name}`); renderCompanyDash('candidatos'); return; }
+  const myActiveJobIds2 = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved').map(j=>j.id);
+  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id&&myActiveJobIds2.includes(m.jobId)&&!m.cancelled);
+  if (existingMatch) { toast(`Ya tenés un match activo con ${c.name} para esa pasantía`); renderCompanyDash('candidatos'); return; }
 
   // Guardar like de empresa
   const likes = DB.get('company_likes') || [];
