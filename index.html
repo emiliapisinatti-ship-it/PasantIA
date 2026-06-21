@@ -1567,6 +1567,35 @@ function removeProfileSkill(s) {
   renderStudentDash('perfil');
 }
 
+function addProfileSkill(e) {
+  if (e.key !== 'Enter') return;
+  const input = document.getElementById('skill-input');
+  const val = (input.value||'').trim();
+  if (!val) return;
+  if (!currentUser.skills) currentUser.skills = [];
+  if (!currentUser.skills.includes(val)) {
+    currentUser.skills.push(val);
+    const wrap = document.getElementById('skills-wrap');
+    const tag = document.createElement('span');
+    tag.className = 'tag-item';
+    tag.innerHTML = `${val}<button onclick="removeProfileSkill('${val}')">×</button>`;
+    wrap.insertBefore(tag, input);
+  }
+  input.value = '';
+  e.preventDefault();
+}
+
+function removeProfileSkill(skill) {
+  if (!currentUser.skills) return;
+  currentUser.skills = currentUser.skills.filter(s => s !== skill);
+  const wrap = document.getElementById('skills-wrap');
+  if (wrap) {
+    [...wrap.querySelectorAll('.tag-item')].forEach(el => {
+      if (el.textContent.replace('×','').trim() === skill) el.remove();
+    });
+  }
+}
+
 function saveProfile() {
   currentUser.bio = document.getElementById('p-bio')?.value;
   updateCurrentUser();
