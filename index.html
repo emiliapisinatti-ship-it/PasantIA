@@ -1321,9 +1321,18 @@ function doSwipe(dir) {
   if(dir==='like') {
     swipeState.liked.push(job);
     card.classList.add('animate-right');
-    toast('Te interesa: '+job.role);
-    // Simulate auto-match on 2nd like
-    if(swipeState.liked.length===2) setTimeout(()=>triggerMatch(job),500);
+    // Save student like
+    if (!(DB.get('student_likes')||[]).find(l=>l.studentId===currentUser.id&&l.jobId===job.id)) {
+      DB.push('student_likes', { studentId:currentUser.id, jobId:job.id, companyId:job.companyId, at:new Date().toLocaleString('es-AR') });
+    }
+    // Check if company already liked this student → mutual match
+    const companyLikedMe = (DB.get('company_likes')||[]).find(l=>l.companyId===job.companyId&&l.candidateId===currentUser.id);
+    const alreadyMatched = (DB.get('matches')||[]).find(m=>m.studentId===currentUser.id&&m.companyId===job.companyId);
+    if (companyLikedMe && !alreadyMatched) {
+      setTimeout(()=>triggerMatch(job, true), 500);
+    } else if (!alreadyMatched) {
+      toast('¡Interés enviado! Si la empresa te elige, van a hacer match.');
+    }
   } else {
     card.classList.add('animate-left');
   }
@@ -1339,14 +1348,23 @@ function undoSwipe() {
   toast('Deshecho');
 }
 
-function triggerMatch(job) {
+function triggerMatch(job, isMutual) {
   const overlay = document.getElementById('match-overlay');
-  // Desde el alumno: es una aplicación, no un match mutuo todavía
-  document.querySelector('#match-overlay .match-title').textContent = '¡Aplicaste!';
-  document.querySelector('#match-overlay .match-title').className = 'match-title';
-  document.querySelector('#match-overlay .pop').textContent = '🚀';
-  document.getElementById('match-text').textContent = `Le diste like a "${job.role}" en ${job.company}. Si les interesás, te van a contactar.`;
-  document.getElementById('match-btn-primary').textContent = 'Ver mis aplicaciones';
+  if (isMutual) {
+    const match = { id:'m'+Date.now(), studentId:currentUser.id, studentName:currentUser.name, companyId:job.companyId, company:job.company, role:job.role, jobId:job.id, duration:job.duration, step:1, createdAt:new Date().toLocaleString('es-AR') };
+    DB.push('matches', match);
+    addNotif(currentUser.id, `¡Match con ${job.company}! Revisá "Mis matches".`, 'heart');
+    addNotif(job.companyId, `¡Match con ${currentUser.name}! Revisá "Mis matches".`, 'heart');
+    document.querySelector('#match-overlay .match-title').textContent = '¡Match mutuo!';
+    document.querySelector('#match-overlay .pop').textContent = '🎉';
+    document.getElementById('match-text').textContent = `Vos y ${job.company} se eligieron mutuamente para "${job.role}"`;
+    document.getElementById('match-btn-primary').textContent = 'Ver mis matches';
+  } else {
+    document.querySelector('#match-overlay .match-title').textContent = '¡Aplicaste!';
+    document.querySelector('#match-overlay .pop').textContent = '🚀';
+    document.getElementById('match-text').textContent = `Le diste like a "${job.role}" en ${job.company}. Si les interesás, te van a contactar.`;
+    document.getElementById('match-btn-primary').textContent = 'Seguir explorando';
+  }
   document.getElementById('match-avatars').innerHTML = `
     <div style="text-align:center">
       ${currentUser.photo?`<img src="${currentUser.photo}" class="avatar avatar-lg" style="border-radius:50%;object-fit:cover"/>`:`<div class="avatar avatar-lg">${currentUser.name.charAt(0)}</div>`}
@@ -1363,12 +1381,6 @@ function triggerMatch(job) {
     <div class="card-info-row" style="margin-bottom:6px"><i data-lucide="clock"></i>${job.duration}</div>
     <div class="card-info-row"><i data-lucide="zap" style="color:var(--purple-light)"></i>Compatibilidad IA: <strong style="color:var(--purple-light);margin-left:4px">${calcCompat(job)}%</strong></div>`;
 
-  // Save match
-  const match = { id:'m'+Date.now(), studentId:currentUser.id, studentName:currentUser.name, companyId:job.companyId, company:job.company, role:job.role, jobId:job.id, duration:job.duration, step:1, createdAt:new Date().toLocaleString('es-AR') };
-  DB.push('matches', match);
-  addNotif(currentUser.id, `¡Match con ${job.company}! Revisá "Mis matches" para ver los datos de contacto.`, 'heart');
-
-  // Mostrar contacto de la empresa
   const companyUser = (DB.get('users')||[]).find(u => u.id === job.companyId);
   const contactEmail = companyUser?.email || `rrhh@${job.company.toLowerCase().replace(/\s/g,'')}.com`;
   const contactName = companyUser?.contact || 'Recursos Humanos';
@@ -1728,9 +1740,9 @@ function renderCompanyMatches() {
               <div class="tracker-label">${s}</div>
             </div>`).join(''); })()}
         </div>
-        ${(()=>{ const cert = (DB.get('certificates')||[]).find(c=>c.matchId===m.id); return m.step < 4 ? `<button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
+        ${(()=>{ const cert = (DB.get('certificates')||[]).find(c=>c.matchId===m.id); return m.step < 4 ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px"><button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
           <i data-lucide="chevrons-right"></i> Avanzar etapa
-        </button>` : cert ? `
+        </button><button class="btn btn-ghost btn-sm" style="color:#f87171;border-color:rgba(248,113,113,0.3)" onclick="cancelMatch('${m.id}')"><i data-lucide="x"></i> Finalizar proceso</button></div>` : cert ? `
         <div style="background:var(--green-dim);border:1px solid rgba(16,185,129,0.3);border-radius:var(--radius-sm);padding:14px">
           <div class="flex gap-2 items-center" style="margin-bottom:6px">
             <i data-lucide="shield-check" style="color:var(--green)"></i>
@@ -1767,6 +1779,21 @@ function notifyFacultadCert(matchId) {
   // Notificar al alumno también
   addNotif(m.studentId, `${currentUser.name} solicitó tu certificado blockchain a la facultad.`, 'award');
   toast('✓ Solicitud enviada a la facultad — emitirán el certificado SBT en Hedera');
+  renderCompanyDash('matches');
+}
+
+function cancelMatch(matchId) {
+  let matches = DB.get('matches') || [];
+  const m = matches.find(x => x.id === matchId);
+  if (!m) return;
+  matches = matches.filter(x => x.id !== matchId);
+  DB.set('matches', matches);
+  // Liberar el like para que puedan elegir otro candidato
+  let compLikes = DB.get('company_likes') || [];
+  compLikes = compLikes.filter(l => !(l.companyId===m.companyId && l.candidateId===m.studentId));
+  DB.set('company_likes', compLikes);
+  addNotif(m.studentId, `${m.company} finalizó el proceso de selección. Podés explorar otras pasantías.`, 'x-circle');
+  toast('Proceso finalizado — el candidato quedó disponible nuevamente');
   renderCompanyDash('matches');
 }
 
@@ -2014,27 +2041,32 @@ function likeCandidate(id) {
   const c = candidates.find(x => x.id === id);
   if (!c) return;
 
+  // Verificar si ya hay match
+  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
+  if (existingMatch) { toast(`Ya tenés un match con ${c.name}`); renderCompanyDash('candidatos'); return; }
+
   // Guardar like de empresa
   const likes = DB.get('company_likes') || [];
   if (!likes.find(l => l.companyId===currentUser.id && l.candidateId===id)) {
     DB.push('company_likes', { companyId:currentUser.id, candidateId:id, at:new Date().toLocaleString('es-AR') });
   }
 
-  // Verificar si ya hay match
-  const existingMatch = (DB.get('matches')||[]).find(m=>m.companyId===currentUser.id&&m.studentId===c.id);
-  if (existingMatch) { toast(`Ya tenés un match con ${c.name}`); return; }
+  // Verificar si el alumno ya dio like a alguna pasantía de esta empresa (match mutuo)
+  const studentLikedUs = (DB.get('student_likes')||[]).find(l=>l.companyId===currentUser.id&&l.studentId===id);
 
-  // Crear match
-  const myJobs = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved');
-  const job = myJobs[0] || { role:'Desarrollador Jr.', id:'j-demo', duration:'6 meses' };
-  const match = {
-    id:'m'+Date.now(), studentId:c.id, studentName:c.name,
-    companyId:currentUser.id, company:currentUser.name,
-    role:job.role, jobId:job.id, duration:job.duration,
-    step:1, createdAt:new Date().toLocaleString('es-AR')
-  };
-  DB.push('matches', match);
-  addNotif(currentUser.id, `¡Match con ${c.name}!`, 'heart');
+  if (studentLikedUs) {
+    // Match mutuo
+    const myJobs = (DB.get('jobs')||[]).filter(j=>j.companyId===currentUser.id&&j.status==='approved');
+    const job = myJobs.find(j=>j.id===studentLikedUs.jobId) || myJobs[0] || { role:'Desarrollador Jr.', id:'j-demo', duration:'6 meses' };
+    const match = {
+      id:'m'+Date.now(), studentId:c.id, studentName:c.name,
+      companyId:currentUser.id, company:currentUser.name,
+      role:job.role, jobId:job.id, duration:job.duration,
+      step:1, createdAt:new Date().toLocaleString('es-AR')
+    };
+    DB.push('matches', match);
+    addNotif(c.id, `¡Match mutuo con ${currentUser.name}! Revisá "Mis matches".`, 'heart');
+    addNotif(currentUser.id, `¡Match mutuo con ${c.name}!`, 'heart');
 
   // Mostrar overlay de match
   document.getElementById('match-text').textContent = `Vos y ${c.name} se eligieron mutuamente para "${job.role}"`;
@@ -2071,8 +2103,14 @@ function likeCandidate(id) {
   document.querySelector('#match-overlay .match-title').className = 'match-title grad';
   document.querySelector('#match-overlay .pop').textContent = '🎉';
 
-  document.getElementById('match-overlay').classList.remove('hidden');
-  icons();
+    document.getElementById('match-overlay').classList.remove('hidden');
+    icons();
+  } else {
+    // No hay match mutuo todavía
+    addNotif(c.id, `${currentUser.name} está interesada en tu perfil. Revisá las pasantías disponibles.`, 'bell');
+    toast(`Like enviado a ${c.name} — si te da like también, ¡habrá match!`);
+    renderCompanyDash('candidatos');
+  }
 }
 
 // ════════════════════════════════════════
