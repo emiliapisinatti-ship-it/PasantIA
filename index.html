@@ -1666,13 +1666,13 @@ function renderCompanyMatches() {
           </div>
         </div>
         <div class="tracker" style="margin-bottom:10px">
-          ${steps.slice(0,4).map((s,i)=>`
-            <div class="tracker-step ${i<m.step-1?'done':i===m.step-1?'active':'pending'}">
-              <div class="tracker-dot ${i<m.step-1?'done':i===m.step-1?'active':'pending'}">
-                <i data-lucide="${i<m.step-1?'check':['heart','calendar','file-text','briefcase'][i]}"></i>
+          ${(()=>{ const hasCert = !!(DB.get('certificates')||[]).find(c=>c.matchId===m.id); const effectiveStep = hasCert ? 5 : m.step; return steps.map((s,i)=>`
+            <div class="tracker-step ${i<effectiveStep-1?'done':i===effectiveStep-1?'active':'pending'}">
+              <div class="tracker-dot ${i<effectiveStep-1?'done':i===effectiveStep-1?'active':'pending'}">
+                <i data-lucide="${i<effectiveStep-1?'check':['heart','calendar','file-text','briefcase','award'][i]}"></i>
               </div>
               <div class="tracker-label">${s}</div>
-            </div>`).join('')}
+            </div>`).join(''); })()}
         </div>
         ${(()=>{ const cert = (DB.get('certificates')||[]).find(c=>c.matchId===m.id); return m.step < 4 ? `<button class="btn btn-ghost btn-sm" onclick="advanceCompanyMatchStep('${m.id}')">
           <i data-lucide="chevrons-right"></i> Avanzar etapa
