@@ -660,11 +660,6 @@ function showLogin() {
       </div>
       <div id="login-error" style="display:none;color:#f87171;font-size:0.83rem;margin-bottom:12px;text-align:center"></div>
       <button class="btn btn-primary w-full" onclick="doLogin()">Ingresar</button>
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-top:16px;font-size:0.78rem;color:var(--muted);line-height:1.7">
-        <div style="font-weight:600;color:var(--muted2);margin-bottom:4px">Cuentas demo:</div>
-        <div>Alumno: <span style="color:var(--purple-light)">lucia@uch.edu.ar</span> / <span style="color:var(--purple-light)">demo2026</span></div>
-        <div>Empresa: <span style="color:var(--purple-light)">rrhh@mercadolibre.com</span> / <span style="color:var(--purple-light)">demo2026</span></div>
-      </div>
       <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;text-align:center">
         <button class="btn btn-ghost btn-sm" onclick="showLoginFacultad()">
           <i data-lucide="shield"></i> Acceso Facultad
@@ -702,7 +697,6 @@ function showLoginFacultad() {
       <div class="form-group">
         <label class="form-label">Código de acceso</label>
         <input class="form-input" id="fac-code" type="password" placeholder="Código">
-        <div style="font-size:0.75rem;color:var(--muted);margin-top:5px">Para el demo usá: <strong style="color:var(--purple-light)">faculty2026</strong></div>
       </div>
       <button class="btn btn-primary w-full" onclick="loginFacultad()">Ingresar</button>
       <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="showLogin()">← Volver</button>
@@ -876,8 +870,7 @@ function renderAuth() {
         <div class="form-group">
           <label class="form-label">Código de acceso</label>
           <input class="form-input" id="f-code" type="password" placeholder="Código institucional"/>
-          <div style="font-size:0.75rem;color:var(--muted);margin-top:5px">Para el demo usá: <strong style="color:var(--purple-light)">faculty2026</strong></div>
-        </div>
+          </div>
         <div style="display:flex;gap:10px">
           <button class="btn btn-ghost" onclick="showScreen('landing')">Volver</button>
           <button class="btn btn-primary" style="flex:1" onclick="registerFacultad()">Ingresar</button>
