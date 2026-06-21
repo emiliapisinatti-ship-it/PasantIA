@@ -1653,8 +1653,8 @@ function renderCompanyMatches() {
               <div style="color:var(--muted);font-size:0.82rem">Lic. en Sistemas · UCH · 4to año</div>
             </div>
           </div>
-          <span class="badge ${m.step>=3?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
-            ${steps[m.step-1]||'Match'}
+          <span class="badge ${(DB.get('certificates')||[]).find(c=>c.matchId===m.id)?'badge-green':m.step>=3?'badge-green':m.step>=2?'badge-purple':'badge-yellow'}">
+            ${(DB.get('certificates')||[]).find(c=>c.matchId===m.id)?'Completada':steps[m.step-1]||'Match'}
           </span>
         </div>
         ${skills.length ? `<div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px">${skills.map(s=>`<span class="card-tag">${s}</span>`).join('')}</div>` : ''}
