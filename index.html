@@ -511,7 +511,7 @@ function showScreen(name) {
 
 function goHome() {
   if (currentUser) {
-    showScreen(currentUser.role);
+    renderDashboard();
   } else {
     showScreen('landing');
   }
