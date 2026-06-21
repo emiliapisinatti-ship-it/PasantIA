@@ -1891,8 +1891,26 @@ function renderMisPasantias() {
       </div>`; }).join(''); })()}`;
 }
 
+function getCandidates() {
+  const users = DB.get('users') || [];
+  const realStudents = users
+    .filter(u => u.role === 'student')
+    .map(u => ({
+      id: u.id, name: u.name,
+      career: (u.career||'Lic. en Sistemas de Información') + (u.year ? ' · ' + u.year : ''),
+      university: u.university || 'UCH',
+      skills: u.skills || [],
+      bio: u.bio || '',
+      cover: avatarBg(u.name),
+      photo: u.photo || null
+    }));
+  const realNames = new Set(realStudents.map(s => s.name.toLowerCase()));
+  const seedOnly = SEED_CANDS.filter(c => !realNames.has(c.name.toLowerCase()));
+  return [...realStudents, ...seedOnly];
+}
+
 function renderCandidatos() {
-  const candidates = DB.get('candidates')||SEED_CANDS;
+  const candidates = getCandidates();
   const myMatches = (DB.get('matches')||[]).filter(m=>m.companyId===currentUser.id);
   const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
   const matchedIds = myMatches.map(m=>m.studentId);
@@ -1936,7 +1954,7 @@ function renderCandidatos() {
 }
 
 function viewCandidate(id) {
-  const candidates = DB.get('candidates') || SEED_CANDS;
+  const candidates = getCandidates();
   const c = candidates.find(x => x.id === id);
   if (!c) return;
   const likedIds = (DB.get('company_likes')||[]).filter(l=>l.companyId===currentUser.id).map(l=>l.candidateId);
@@ -1954,7 +1972,7 @@ function viewCandidate(id) {
         <button class="btn btn-ghost btn-sm btn-icon" onclick="document.getElementById('candidate-modal').remove()"><i data-lucide="x"></i></button>
       </div>
       <div class="flex gap-4 items-center" style="margin-bottom:18px">
-        <div style="width:64px;height:64px;border-radius:50%;background:${c.cover};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;color:white;flex-shrink:0">${c.name.charAt(0)}</div>
+        ${c.photo ? `<img src="${c.photo}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;flex-shrink:0"/>` : `<div style="width:64px;height:64px;border-radius:50%;background:${c.cover};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.5rem;color:white;flex-shrink:0">${c.name.charAt(0)}</div>`}
         <div>
           <div style="font-size:1.05rem;font-weight:800">${c.name}</div>
           <div style="color:var(--muted);font-size:0.85rem">${c.career}</div>
@@ -1992,7 +2010,7 @@ function passCandidate(id) {
 
 function likeCandidate(id) {
   document.getElementById('candidate-modal')?.remove();
-  const candidates = DB.get('candidates') || SEED_CANDS;
+  const candidates = getCandidates();
   const c = candidates.find(x => x.id === id);
   if (!c) return;
 
