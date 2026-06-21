@@ -696,12 +696,13 @@ function showLoginFacultad() {
       <h2 style="margin-bottom:4px">Acceso Facultad</h2>
       <p style="color:var(--muted);font-size:0.85rem;margin-bottom:24px">Ingresá el código de acceso</p>
       <div class="form-group">
-        <label class="form-label">Nombre</label>
-        <input class="form-input" id="fac-name" type="text" placeholder="Ej: María González">
+        <label class="form-label">Email institucional</label>
+        <input class="form-input" id="fac-email" type="email" placeholder="nombre@uch.edu.ar">
       </div>
       <div class="form-group">
         <label class="form-label">Código de acceso</label>
         <input class="form-input" id="fac-code" type="password" placeholder="Código">
+        <div style="font-size:0.75rem;color:var(--muted);margin-top:5px">Para el demo usá: <strong style="color:var(--purple-light)">faculty2026</strong></div>
       </div>
       <button class="btn btn-primary w-full" onclick="loginFacultad()">Ingresar</button>
       <button class="btn btn-ghost w-full" style="margin-top:8px" onclick="showLogin()">← Volver</button>
@@ -711,9 +712,10 @@ function showLoginFacultad() {
 
 function loginFacultad() {
   const code = document.getElementById('fac-code').value.trim();
-  const name = document.getElementById('fac-name').value.trim() || 'Coordinadora';
+  const email = (document.getElementById('fac-email').value||'').trim();
+  if (!email) { toast('Ingresá el email institucional'); return; }
   if (code !== 'faculty2026') { toast('Código incorrecto'); return; }
-  login({ id:'faculty_'+Date.now(), role:'facultad', name });
+  login({ id:'facultad-1', role:'facultad', name:'Facultad UCH', email });
 }
 
 function loginAs(userId) {
