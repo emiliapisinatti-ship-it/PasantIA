@@ -2408,6 +2408,9 @@ async function demoEmitir() {
 async function emitCert(matchId) {
   const m = (DB.get('matches')||[]).find(x=>x.id===matchId);
   if(!m) return;
+  if ((DB.get('certificates')||[]).find(c=>c.matchId===matchId)) { toast('Este certificado ya fue emitido'); return; }
+  const btn = document.querySelector(`button[onclick="emitCert('${matchId}')"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'Emitiendo...'; }
   toast('⏳ Emitiendo en Hedera Testnet...');
   try {
     const { txHash, block } = await emitirEnHedera(m.studentName, m.company, m.role, m.duration);
