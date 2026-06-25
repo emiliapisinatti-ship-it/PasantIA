@@ -70,7 +70,7 @@ Cuando una pasantía finaliza, la facultad emite un certificado **SBT (Soul Boun
 
 ## Video demo
 
-▶ [Ver video demo en Google Drive](https://drive.google.com/file/d/16NWCWFbQ4hg6c9z6Dq4GtZpKhl_cryuc/view?usp=sharing)
+▶ [Ver video demo en Google Drive](https://drive.google.com/file/d/1IwjTz7GRHPaj9ojUBl67SG67bBeP9V4R/view?usp=sharing)
 
 ---
 
