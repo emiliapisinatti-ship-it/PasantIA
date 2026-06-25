@@ -77,7 +77,7 @@ PasantIA/
 ├── contracts/
 │   └── PasantiaCertificado.sol         # Smart contract Solidity
 ├── docs/
-│   ├── lean-canvas.pdf                 # Lean Canvas del proyecto
+│   ├── lean-canvas.pdf                 # Canvas de Propuesta de Valor
 │   ├── memoria-tecnica.pdf             # Memoria técnica
 │   ├── pitch-deck.pdf                  # Pitch Deck
 │   └── evidencias/                     # Capturas y evidencias del MVP
