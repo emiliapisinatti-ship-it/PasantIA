@@ -85,8 +85,7 @@ PasantIA/
 ├── docs/
 │   ├── lean-canvas.pdf                 # Canvas de Propuesta de Valor
 │   ├── memoria-tecnica.pdf             # Memoria técnica
-│   ├── pitch-deck.pdf                  # Pitch Deck
-│   └── evidencias/                     # Capturas y evidencias del MVP
+│   └── pitch-deck.pdf                  # Pitch Deck
 └── README.md
 ```
 
