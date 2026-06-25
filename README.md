@@ -78,14 +78,15 @@ Cuando una pasantía finaliza, la facultad emite un certificado **SBT (Soul Boun
 
 ```
 PasantIA/
-├── index.html                          # Aplicación completa (SPA)
-├── mockup_pasantias.html               # Mockup inicial de diseño
+├── index.html                                      # Aplicación completa (SPA)
 ├── contracts/
-│   └── PasantiaCertificado.sol         # Smart contract Solidity
+│   └── PasantiaCertificado.sol                     # Smart contract Solidity
 ├── docs/
-│   ├── lean-canvas.pdf                 # Canvas de Propuesta de Valor
-│   ├── memoria-tecnica.pdf             # Memoria técnica
-│   └── pitch-deck.pdf                  # Pitch Deck
+│   ├── lean-canvas.pdf                             # Canvas de Propuesta de Valor
+│   ├── PasantIA — Memoria Técnica.pdf              # Memoria técnica
+│   ├── PasantIA — Documentación del Proyecto.pdf   # Contribuciones por integrante
+│   ├── PasantIA — Backlog del Proyecto.pdf         # Backlog de las 3 semanas
+│   └── pitch-deck.pdf                              # Pitch Deck
 └── README.md
 ```
 
