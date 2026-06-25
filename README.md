@@ -105,3 +105,10 @@ El contrato registra cada pasantía con tres confirmaciones (alumno, empresa y f
 ## Equipo
 
 Proyecto desarrollado para la materia **Teoría de la Computación 2** — UCH 2026.
+
+| Integrante | Rol |
+|------------|-----|
+| Emilia Pisinatti | Frontend |
+| Sofía Aguero | Blockchain |
+| Tiziana Valdez | Inteligencia Artificial |
+| Mia Nogara | Documentación & Pitch |
