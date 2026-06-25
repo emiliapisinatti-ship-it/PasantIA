@@ -625,6 +625,7 @@ function removeSkill(skill, type) {
 }
 
 function startAuth(role) {
+  if (role === 'facultad') { showScreen('auth'); showLoginFacultad(); return; }
   authRole = role;
   authStep = role ? 2 : 1;
   showScreen('auth');
